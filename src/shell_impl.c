@@ -4,7 +4,13 @@
 
 #include "shell_impl.h"
 #include <stdio.h>
+#include <dc_posix/dc_stdlib.h>
+#include <unistd.h>
+#include <stdlib.h>
 
+#define IN_REDIRECT_REGEX "[ \t\f\v]<.*"
+#define OUT_REDIRECT_REGEX "[ \t\f\v][1^2]?>[>]?.*"
+#define ERR_REDIRECT_REGEX "[ \t\f\v]2>[>]?.*"
 
 /**
  * Set up the initial state:
@@ -22,7 +28,46 @@
  */
 int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 {
+    struct state *states;
+    int return_value_regex;
 
+    states = dc_malloc(env, err, sizeof (struct state));
+
+    if (states == NULL)
+    {
+        return ERROR;
+    }
+
+    states->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
+    return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
+    if (return_value_regex != 0)
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+    return_value_regex = regcomp(states->out_redirect_regex, OUT_REDIRECT_REGEX, 0);
+    if (return_value_regex != 0)
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+    return_value_regex = regcomp(states->err_redirect_regex, ERR_REDIRECT_REGEX, 0);
+    if (return_value_regex != 0)
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+
+
+    /* get the PATH environment */
+    const char* name = "HOME";
+    char *value;
+
+    value = getenv(name);
+
+
+
+    return READ_COMMANDS;
 }
 
 /**
@@ -138,5 +183,13 @@ int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 int handle_error(const struct dc_posix_env *env, struct dc_error *err,
                  void *arg)
 {
+    struct state* states;
+    states = (struct state*)arg;
 
+    if(states->fatal_error)
+    {
+        return DESTROY_STATE;
+    }
+    dc_error_reset(err);
+    return RESET_STATE;
 }
