@@ -93,6 +93,21 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
 void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct state *state)
 {
 
+    state->current_line_length = 0;
+
+    if (state->current_line)
+    {
+        dc_free(env, state->current_line, dc_strlen(env, state->current_line));
+        state->current_line = NULL;
+    }
+
+    if (state->command)
+    {
+        dc_free(env, state->command, dc_strlen(env, (const char *) state->command));
+        state->command = NULL;
+    }
+    state->fatal_error = false;
+    dc_error_reset(err);
 }
 
 /**

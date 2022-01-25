@@ -5,7 +5,7 @@
 #include "../include/util.h"
 #include <dc_util/strings.h>
 
-//static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err);
+static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err);
 //static void test_parse_path(const char *path_str, char **dirs);
 
 Describe(util);
@@ -90,72 +90,72 @@ AfterEach(util)
 //    assert_that(path_dirs[i], is_null);
 //}
 //
-//Ensure(util, do_reset_state)
-//{
-//    struct state state;
-//
-//    state.stdin = stdin;
-//    state.stdout = stdout;
-//    state.stderr = stderr;
-//    state.in_redirect_regex = NULL;
-//    state.out_redirect_regex = NULL;
-//    state.err_redirect_regex = NULL;
-//    state.path = NULL;
-//    state.prompt = NULL;
-//    state.max_line_length = 0;
-//    state.current_line = NULL;
-//    state.current_line_length = 0;
-//    state.command = NULL;
-//    state.fatal_error = false;
-//
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//
-//    state.current_line = strdup("");
-//    state.current_line_length = strlen(state.current_line);
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//
-//    state.current_line = strdup("ls");
-//    state.current_line_length = strlen(state.current_line);
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//
-//    state.current_line = strdup("ls");
-//    state.current_line_length = strlen(state.current_line);
-//    state.command = calloc(1, sizeof(struct command));
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//
-//    DC_ERROR_RAISE_ERRNO(&error, E2BIG);
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//
-//    state.fatal_error = true;
-//    do_reset_state(&environ, &error, &state);
-//    check_state_reset(&error, &state, stdin, stdout, stderr);
-//}
-//
-//static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err)
-//{
-//    assert_false(state->fatal_error);
-//    assert_that(state->current_line, is_null);
-//    assert_that(state->current_line_length, is_equal_to(0));
-//    assert_that(state->command, is_null);
-//    assert_that(state->stdin, is_equal_to(in));
-//    assert_that(state->stdout, is_equal_to(out));
-//    assert_that(state->stderr, is_equal_to(err));
-//
-//    assert_that(error->message, is_null);
-//    assert_that(error->file_name, is_null);
-//    assert_that(error->function_name, is_null);
-//    assert_that(error->line_number, is_equal_to(0));
-//    assert_that(error->type, is_equal_to(0));
-//    assert_that(error->type, is_equal_to(0));
-//    assert_that(error->reporter, is_null);
-//    assert_that(error->err_code, is_equal_to(0));
-//}
-//
+Ensure(util, do_reset_state)
+{
+    struct state state;
+
+    state.stdin = stdin;
+    state.stdout = stdout;
+    state.stderr = stderr;
+    state.in_redirect_regex = NULL;
+    state.out_redirect_regex = NULL;
+    state.err_redirect_regex = NULL;
+    state.path = NULL;
+    state.prompt = NULL;
+    state.max_line_length = 0;
+    state.current_line = NULL;
+    state.current_line_length = 0;
+    state.command = NULL;
+    state.fatal_error = false;
+
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+
+    state.current_line = strdup("");
+    state.current_line_length = strlen(state.current_line);
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+
+    state.current_line = strdup("ls");
+    state.current_line_length = strlen(state.current_line);
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+
+    state.current_line = strdup("ls");
+    state.current_line_length = strlen(state.current_line);
+    state.command = calloc(1, sizeof(struct command));
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+
+    DC_ERROR_RAISE_ERRNO(&error, E2BIG);
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+
+    state.fatal_error = true;
+    do_reset_state(&environ, &error, &state);
+    check_state_reset(&error, &state, stdin, stdout, stderr);
+}
+
+static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err)
+{
+    assert_false(state->fatal_error);
+    assert_that(state->current_line, is_null);
+    assert_that(state->current_line_length, is_equal_to(0));
+    assert_that(state->command, is_null);
+    assert_that(state->stdin, is_equal_to(in));
+    assert_that(state->stdout, is_equal_to(out));
+    assert_that(state->stderr, is_equal_to(err));
+
+    assert_that(error->message, is_null);
+    assert_that(error->file_name, is_null);
+    assert_that(error->function_name, is_null);
+    assert_that(error->line_number, is_equal_to(0));
+    assert_that(error->type, is_equal_to(0));
+    assert_that(error->type, is_equal_to(0));
+    assert_that(error->reporter, is_null);
+    assert_that(error->err_code, is_equal_to(0));
+}
+
 Ensure(util, state_to_string)
 {
     struct state state;
@@ -214,7 +214,7 @@ TestSuite *util_tests(void)
 //    add_test_with_context(suite, util, get_prompt);
 //    add_test_with_context(suite, util, get_path);
 //    add_test_with_context(suite, util, parse_path);
-//    add_test_with_context(suite, util, do_reset_state);
+    add_test_with_context(suite, util, do_reset_state);
     add_test_with_context(suite, util, state_to_string);
 
     return suite;
