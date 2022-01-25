@@ -2,12 +2,14 @@
 // Created by Giwoun Bae on 2022-01-18.
 //
 
-#include "shell_impl.h"
+#include "../include/shell_impl.h"
 #include <stdio.h>
 #include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <dc_posix/dc_string.h>
+#include <util.h>
+#include <dc_util/path.h>
 #define IN_REDIRECT_REGEX "[ \t\f\v]<.*"
 #define OUT_REDIRECT_REGEX "[ \t\f\v][1^2]?>[>]?.*"
 #define ERR_REDIRECT_REGEX "[ \t\f\v]2>[>]?.*"
@@ -39,9 +41,14 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
     }
 
     states->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
+
+    states->in_redirect_regex = dc_malloc(env, err, dc_strlen(env, IN_REDIRECT_REGEX) + 1);
+    states->out_redirect_regex = dc_malloc(env, err, dc_strlen(env, OUT_REDIRECT_REGEX) + 1);
+    states->err_redirect_regex = dc_malloc(env, err, dc_strlen(env, ERR_REDIRECT_REGEX) + 1);
     return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
     if (return_value_regex != 0)
     {
+        printf("error");
         states->fatal_error = true;
         return ERROR;
     }
@@ -58,16 +65,19 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
         return ERROR;
     }
 
-
+    char * path_variable;
+    char **exp_path;
     /* get the PATH environment */
-    const char* name = "HOME";
-    char *value;
+    //get the PATH environment variables
+    //split PATH into an array, seperated by :
+//    path_variable = get_path(env, err);
+//    exp_path = parse_path(env, err, path_variable);
 
-    value = getenv(name);
 
 
 
-    return READ_COMMANDS;
+
+    return 0;
 }
 
 /**

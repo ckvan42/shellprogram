@@ -10,6 +10,12 @@ set(TEST_HEADER_LIST
 
 set(TEST_SOURCE_LIST
         main.c
+        builtin_tests.c
+        command_tests.c
+        execute_tests.c
+        input_tests.c
+        shell_impl_tests.c
+        util_tests.c
         )
 
 include_directories(${CGREEN_PUBLIC_INCLUDE_DIRS} ${PROJECT_BINARY_DIR})
@@ -22,7 +28,7 @@ target_compile_options(dc_shell_test PRIVATE -fstack-protector-all -ftrapv)
 target_compile_options(dc_shell_test PRIVATE -Wpedantic -Wall -Wextra)
 target_compile_options(dc_shell_test PRIVATE -Wdouble-promotion -Wformat-nonliteral -Wformat-security -Wformat-y2k -Wnull-dereference -Winit-self -Wmissing-include-dirs -Wswitch-default -Wswitch-enum -Wunused-local-typedefs -Wstrict-overflow=5 -Wmissing-noreturn -Walloca -Wfloat-equal -Wdeclaration-after-statement -Wshadow -Wpointer-arith -Wabsolute-value -Wundef -Wexpansion-to-defined -Wunused-macros -Wno-endif-labels -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wdangling-else -Wdate-time -Wempty-body -Wsign-conversion -Wfloat-conversion -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wlong-long -Wvariadic-macros -Wdisabled-optimization -Wstack-protector -Woverlength-strings)
 
-target_include_directories(dc_shell_test PRIVATE ../include)
+target_include_directories(dc_shell_test PRIVATE ../../../../Downloads/include)
 target_include_directories(dc_shell_test PRIVATE /usr/include)
 target_include_directories(dc_shell_test PRIVATE /usr/local/include)
 

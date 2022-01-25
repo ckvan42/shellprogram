@@ -28,21 +28,21 @@
  *
  * @param env the posix environment.
  * @param err the error object
- * @return PS1 env var or "$" if PS1 not set.
+ * @return value of the PS1 environ var or "$ " if PS1 not set.
  */
-const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err);
+char *get_prompt(const struct dc_posix_env *env, struct dc_error *err);
 
 /**
- * Get the PATH env var.
+ * Get the PATH environ var.
  *
  * @param env the posix environment.
  * @param err the error object
- * @return the PATH env var
+ * @return the PATH environ var
  */
 char *get_path(const struct dc_posix_env *env, struct dc_error *err);
 
 /**
- * Separate a path (eg. PATH env var) into separate directories.
+ * Separate a path (eg. PATH environ var) into separate directories.
  * Directories are separated with a ':' character.
  * Any directories with ~ are converted to the users home directory.
  *
@@ -52,7 +52,7 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err);
  * @return The directories that make up the path.
  */
 char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
-                  char *path_str);
+                  const char *path_str);
 
 /**
  * Reset the state for the next read, freeing any dynamically allocated memory.
@@ -70,5 +70,14 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * @param stream the stream to display the state on,
  */
 void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream);
+
+/**
+ * Display the state values to the given stream.
+ *
+ * @param env the posix environment.
+ * @param state the state to display.
+ * @param stream the stream to display the state on,
+ */
+char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state);
 
 #endif // DC_SHELL_UTIL_H

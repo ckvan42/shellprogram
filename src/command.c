@@ -2,7 +2,7 @@
 // Created by Giwoun Bae on 2022-01-18.
 //
 
-#include "command.h"
+#include "../include/command.h"
 #include <stdlib.h>
 #include <stdio.h>
 

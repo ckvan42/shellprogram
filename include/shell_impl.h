@@ -26,8 +26,8 @@
  *  - in_redirect_regex  "[ \t\f\v]<.*"
  *  - out_redirect_regex "[ \t\f\v][1^2]?>[>]?.*"
  *  - err_redirect_regex "[ \t\f\v]2>[>]?.*"
- *  - path the PATH env var seaprated into directories
- *  - prompt the PS1 env var or "$" if PS1 not set
+ *  - path the PATH environ var separated into directories
+ *  - prompt the PS1 environ var or "$" if PS1 not set
  *  - max_line_length the value of _SC_ARG_MAX (see sysconf)
  *
  * @param env the posix environment.
@@ -38,7 +38,7 @@
 int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 
 /**
- * Free any dynamically allocated memory in the state.
+ * Free any dynamically allocated memory in the state and sets variables to NULL, 0 or false.
  *
  * @param env the posix environment.
  * @param err the error object
@@ -119,7 +119,7 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
 int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 
 /**
- * Print the err->message to stderr and reset the err (see dc_err_reset).
+ * Print the error->message to stderr and reset the error (see dc_err_reset).
  *
  * @param env the posix environment.
  * @param err the error object

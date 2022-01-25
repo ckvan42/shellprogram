@@ -31,7 +31,6 @@
  * @param line_size the maximum characters to read.
  * @return The command line that the user entered.
  */
-char *read_command_line(const struct dc_posix_env *env, struct dc_error *err,
-                        FILE *stream, size_t *line_size);
+char *read_command_line(const struct dc_posix_env *env, struct dc_error *err, FILE *stream, size_t *line_size);
 
 #endif // DC_SHELL_INPUT_H
