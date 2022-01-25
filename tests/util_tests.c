@@ -6,7 +6,7 @@
 #include <dc_util/strings.h>
 
 static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err);
-//static void test_parse_path(const char *path_str, char **dirs);
+static void test_parse_path(const char *path_str, char **dirs);
 
 Describe(util);
 
@@ -65,31 +65,31 @@ AfterEach(util)
 //    }
 //}
 //
-//Ensure(util, parse_path)
-//{
-//    test_parse_path("", dc_strs_to_array(&environ, &error, 1, NULL));
-//    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL) );
-//    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
-//    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL) );
-//    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
-//}
-//
-//static void test_parse_path(const char *path_str, char **dirs)
-//{
-//    char **path_dirs;
-//    size_t i;
-//
-//    path_dirs = parse_path(&environ, &error, path_str);
-//
-//    for(i = 0; dirs[i] && path_dirs[i]; i++)
-//    {
-//        assert_that(path_dirs[i], is_equal_to_string(dirs[i]));
-//    }
-//
-//    assert_that(dirs[i], is_null);
-//    assert_that(path_dirs[i], is_null);
-//}
-//
+Ensure(util, parse_path)
+{
+    test_parse_path("", dc_strs_to_array(&environ, &error, 1, NULL));
+    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL) );
+    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
+    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL) );
+    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
+}
+
+static void test_parse_path(const char *path_str, char **dirs)
+{
+    char **path_dirs;
+    size_t i;
+
+    path_dirs = parse_path(&environ, &error, path_str);
+
+    for(i = 0; dirs[i] && path_dirs[i]; i++)
+    {
+        assert_that(path_dirs[i], is_equal_to_string(dirs[i]));
+    }
+
+    assert_that(dirs[i], is_null);
+    assert_that(path_dirs[i], is_null);
+}
+
 Ensure(util, do_reset_state)
 {
     struct state state;
@@ -213,9 +213,9 @@ TestSuite *util_tests(void)
     suite = create_test_suite();
 //    add_test_with_context(suite, util, get_prompt);
 //    add_test_with_context(suite, util, get_path);
-//    add_test_with_context(suite, util, parse_path);
-    add_test_with_context(suite, util, do_reset_state);
-    add_test_with_context(suite, util, state_to_string);
+    add_test_with_context(suite, util, parse_path);
+//    add_test_with_context(suite, util, do_reset_state);
+//    add_test_with_context(suite, util, state_to_string);
 
     return suite;
 }

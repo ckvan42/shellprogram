@@ -2,13 +2,13 @@
 // Created by Giwoun Bae on 2022-01-18.
 //
 
-#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dc_posix/dc_string.h>
 #include <dc_posix/dc_stdlib.h>
 #include "../include/state.h"
+#include "../include/util.h"
 
 
 /**
@@ -46,6 +46,7 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err)
     return value;
 }
 
+static size_t count(const char* str, const char sep);
 #define MAX_NUM_TOKEN 10
 #define MAX_LEN_TOKEN 50
 /**
@@ -61,28 +62,48 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err)
 char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
                   char *path_str)
 {
-//    int num_tokens = 0;
-//    char *tempArray[MAX_NUM_TOKEN];
-//    const char* delimiter = ":";
-//    char* context;
-//    char *token;
-//
-//    token = dc_strtok_r(env, path_str, delimiter, &context);
-//
-//    if (!token)
-//    {
-//        printf("token is null."); //ATTENTION: best way to do it?
-//    }
-//
-//    while (token != NULL)
-//    {
-//        dc_strcpy(env, tempArray[num_tokens], token);
-//        num_tokens++;
-//        token = dc_strtok_r(env, NULL, delimiter, &context);
-//    }
-//
-//    return tempArray;
+    char *temp; //the original string gets destroyed. So we need the temp copy.
+    char *token; //each token
+    char **list; //list
+    size_t maxLen;
+    size_t index;
+
+    temp = strdup(path_str);
+    maxLen = strlen(temp); // maximum number of tokens.
+    maxLen = dc_strlen(env, temp); // maximum number of tokens.
+    list = dc_calloc(env, err, maxLen + 1, sizeof (char *));
+    index = 0;
+
+    while((token = strtok_r(temp, ":", &temp)) != NULL)
+    {
+        list[index] = dc_strdup(env, err, token);
+        index++;
+    }
+    list[index] = NULL;
+
+    return list;
 }
+
+static size_t count(const char* str, const char sep)
+{
+    size_t num;
+    char* temp;
+
+    num = 0;
+    temp = str;
+
+    while(temp)
+    {
+        if ((*temp) == sep)
+        {
+            num++;
+        }
+        temp++;
+    }
+    printf("%zu\n", num);
+    return num;
+}
+
 
 /**
  * Reset the state for the next read, freeing any dynamically allocated memory.
@@ -117,9 +138,13 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream)
+void display_state(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state, FILE *stream)
 {
     //for debugging purposes.
+    char *str;
+
+    str = state_to_string(env, err, state);
+    dc_free(env, str, dc_strlen(env, str));
 }
 
 /**
