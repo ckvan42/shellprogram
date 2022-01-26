@@ -24,47 +24,47 @@ AfterEach(util)
     dc_error_reset(&error);
 }
 
-//Ensure(util, get_prompt)
-//{
-//    const char *prompt;
-//
-//    unsetenv("PS1");
-//    prompt = get_prompt(&environ, &error);
-//    assert_that(prompt, is_equal_to_string("$ "));
-//
-//    setenv("PS1", "ABC", true);
-//    prompt = get_prompt(&environ, &error);
-//    assert_that(prompt, is_equal_to_string("ABC"));
-//}
+Ensure(util, get_prompt)
+{
+    const char *prompt;
 
-//Ensure(util, get_path)
-//{
-//    static const char *paths[] =
-//            {
-//                "",
-//                ".",
-//                "abc",
-//                "abc:def",
-//                "/usr/bin:.",
-//                ".:/usr/bin",
-//                ":",
-//                "/usr/bin:/bin:/usr/local/bin",
-//                NULL,
-//            };
-//    char *path;
-//
-//    unsetenv("PATH");
-//    path = getenv("PATH");
-//    assert_that(path, is_null);
-//
-//    for(int i = 0; paths[i]; i++)
-//    {
-//        setenv("PATH", paths[i], true);
-//        path = getenv("PATH");
-//        assert_that(path, is_equal_to_string(paths[i]));
-//    }
-//}
-//
+    unsetenv("PS1");
+    prompt = get_prompt(&environ, &error);
+    assert_that(prompt, is_equal_to_string("$ "));
+
+    setenv("PS1", "ABC", true);
+    prompt = get_prompt(&environ, &error);
+    assert_that(prompt, is_equal_to_string("ABC"));
+}
+
+Ensure(util, get_path)
+{
+    static const char *paths[] =
+            {
+                "",
+                ".",
+                "abc",
+                "abc:def",
+                "/usr/bin:.",
+                ".:/usr/bin",
+                ":",
+                "/usr/bin:/bin:/usr/local/bin",
+                NULL,
+            };
+    char *path;
+
+    unsetenv("PATH");
+    path = getenv("PATH");
+    assert_that(path, is_null);
+
+    for(int i = 0; paths[i]; i++)
+    {
+        setenv("PATH", paths[i], true);
+        path = getenv("PATH");
+        assert_that(path, is_equal_to_string(paths[i]));
+    }
+}
+
 Ensure(util, parse_path)
 {
     test_parse_path("", dc_strs_to_array(&environ, &error, 1, NULL));
@@ -211,11 +211,11 @@ TestSuite *util_tests(void)
     TestSuite *suite;
 
     suite = create_test_suite();
-//    add_test_with_context(suite, util, get_prompt);
-//    add_test_with_context(suite, util, get_path);
+    add_test_with_context(suite, util, get_prompt);
+    add_test_with_context(suite, util, get_path);
     add_test_with_context(suite, util, parse_path);
-//    add_test_with_context(suite, util, do_reset_state);
-//    add_test_with_context(suite, util, state_to_string);
+    add_test_with_context(suite, util, do_reset_state);
+    add_test_with_context(suite, util, state_to_string);
 
     return suite;
 }

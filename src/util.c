@@ -9,7 +9,34 @@
 #include <dc_posix/dc_stdlib.h>
 #include "../include/state.h"
 #include "../include/util.h"
+#include "../include/command.h"
 
+/**
+ * Free command struct when resetting.
+ *
+ * @param env the posix environment.
+ * @param err the error object.
+ * @param command
+ */
+static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **command);
+
+/**
+ * Free char pointers if not NULL.
+ * @param env the posix environment.
+ * @param err the error object.
+ * @param target the char pointer to be freed.
+ */
+static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char ** target);
+
+/**
+ * Loops through the array and frees those pointers.
+ *
+ * @param env the posix environment.
+ * @param err the error object.
+ * @param argc size of the array.
+ * @param argv the array of pointers.
+ */
+static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv);
 
 /**
  * Get the prompt to use.
@@ -20,10 +47,25 @@
  */
 const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
 {
+    const char* name = "PS1";
+    char* value;
+    char* prompt;
 
+    value = dc_getenv(env, name);
+    if (value)
+    {
+        prompt = dc_strdup(env, err, value);
+    }
+    else
+    {
+        prompt = dc_strdup(env, err, "$ ");
+    }
+
+    return prompt;
+    //ATTENTION HOW CAN I FREE THIS????
+    //COUPLING???
 }
 
-#define MAX_BUF_PATH 1024
 /**
  * Get the PATH env var.
  *
@@ -37,18 +79,15 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err)
     char* value;
     //this might be in the dc_utils
     //search for it in there.
-    value = getenv(name);
-    if (!value)
-    {
-        return NULL; //ATTENTION: what would be the best way to handle the null pointer in this case should I create an error handling function for null pointer??
-    }
+    value = dc_getenv(env, name);
+
+    //ATTENTION:
+    //should I handle NULL here?
+    //No, the test case also checks for NULL.
 
     return value;
 }
 
-static size_t count(const char* str, const char sep);
-#define MAX_NUM_TOKEN 10
-#define MAX_LEN_TOKEN 50
 /**
  * Separate a path (eg. PATH env var) into separate directories.
  * Directories are separated with a ':' character.
@@ -67,9 +106,10 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
     char **list; //list
     size_t maxLen;
     size_t index;
+    char *tempFr;
 
     temp = strdup(path_str);
-    maxLen = strlen(temp); // maximum number of tokens.
+    tempFr = temp;
     maxLen = dc_strlen(env, temp); // maximum number of tokens.
     list = dc_calloc(env, err, maxLen + 1, sizeof (char *));
     index = 0;
@@ -79,29 +119,10 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
         list[index] = dc_strdup(env, err, token);
         index++;
     }
+    free(tempFr);
     list[index] = NULL;
 
     return list;
-}
-
-static size_t count(const char* str, const char sep)
-{
-    size_t num;
-    char* temp;
-
-    num = 0;
-    temp = str;
-
-    while(temp)
-    {
-        if ((*temp) == sep)
-        {
-            num++;
-        }
-        temp++;
-    }
-    printf("%zu\n", num);
-    return num;
 }
 
 
@@ -115,22 +136,47 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
 {
 
     state->current_line_length = 0;
-
-    if (state->current_line)
-    {
-        dc_free(env, state->current_line, dc_strlen(env, state->current_line));
-        state->current_line = NULL;
-    }
-
+    free_char(env, err, &(state->current_line));
     if (state->command)
     {
-        dc_free(env, state->command, dc_strlen(env, (const char *) state->command));
+        free_command(env, err, &state->command);
+        dc_free(env, state->command, sizeof(struct command));
         state->command = NULL;
     }
     state->fatal_error = false;
     dc_error_reset(err);
 }
 
+static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **command)
+{
+    free_char(env, err, &(*command)->line);
+    free_char(env, err, &(*command)->command);
+    free_loop(env, err, &(*command)->argc, &(*command)->argv);
+    free_char(env, err, &(*command)->stdin_file);
+    free_char(env, err, &(*command)->stdout_file);
+    (*command)->stdout_overwrite = false;
+    free_char(env, err, &(*command)->stderr_file);
+    (*command)->stderr_overwrite = false;
+    (*command)->exit_code = 0;
+}
+
+static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv)
+{
+    for (size_t i = 0; i < *argc; i++)
+    {
+        free_char(env, err, argv[i]);
+    }
+    *argc = 0;
+}
+
+static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char **target)
+{
+    if (target != NULL)
+    {
+        dc_free(env, *target, dc_strlen(env, (const char *) target));
+        *target = NULL;
+    }
+}
 /**
  * Display the state values to the given stream.
  *
@@ -154,7 +200,7 @@ void display_state(const struct dc_posix_env *env, const struct dc_error *err, c
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state)
+char *state_to_string(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state)
 {
     char *str;
     size_t length;

@@ -80,6 +80,6 @@ void display_state(const struct dc_posix_env *env, const struct dc_error *err, c
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state);
+char *state_to_string(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state);
 
 #endif // DC_SHELL_UTIL_H
