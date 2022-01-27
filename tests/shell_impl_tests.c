@@ -144,8 +144,8 @@ static void test_reset_state(const char *expected_prompt, bool initial_fatal)
 
 Ensure(shell_impl, read_commands)
 {
-//    test_read_commands("hello", "hello", SEPARATE_COMMANDS);
-//    test_read_commands("hello\n", "hello", SEPARATE_COMMANDS);
+    test_read_commands("hello", "hello", SEPARATE_COMMANDS);
+    test_read_commands("hello\n", "hello", SEPARATE_COMMANDS);
     test_read_commands("\n", "", RESET_STATE);
 }
 

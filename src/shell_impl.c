@@ -100,9 +100,6 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
     states->prompt = dc_strdup(env, err, get_prompt(env, err));
 
     //all other variables to zero
-    states->stdin = stdin;
-    states->stdout = stdout;
-    states->stderr = stderr;
     states->fatal_error = false;
     states->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
     states->current_line = NULL;
@@ -230,9 +227,13 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err,
         states->fatal_error = true;
         return ERROR;
     }
-//    fprintf(states->stdout, "[%s] %s\n", current_working_dir, states->prompt);
 
     current_prompt = dc_malloc(env, err, 1 + dc_strlen(env, current_working_dir) + 1 + 2 + dc_strlen(env, states->prompt));
+    if (dc_error_has_error(err))
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
     sprintf(current_prompt, "[%s] %s", current_working_dir, states->prompt);
     fprintf(states->stdout, "%s", current_prompt);
 
@@ -245,12 +246,18 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err,
         return ERROR;
     }
 
+    states->current_line = dc_strdup(env, err, cur_line);
+    states->current_line_length = line_len;
+    if (dc_error_has_error(err))
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+
     if (line_len == 0)
     {
         return RESET_STATE;
     }
-
-    states->current_line = dc_strdup(env, err, cur_line);
 
     return SEPARATE_COMMANDS;
 }
