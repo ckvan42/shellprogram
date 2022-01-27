@@ -22,7 +22,7 @@ AfterEach(input)
 
 Ensure(input, read_command_line)
 {
-    test_read_command_line("hello\n", "hello", NULL);
+    test_read_command_line( "hello\n", "hello", NULL);
     test_read_command_line(" evil \n", "evil", NULL);
     test_read_command_line(" \t\f\vhello world  \t\f\v\n", "hello world", NULL);
     test_read_command_line("evil\nworld\n", "evil", "world", NULL);

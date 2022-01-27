@@ -49,7 +49,7 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 
     states = (struct state*) arg;
 
-    states->in_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, IN_REDIRECT_REGEX) + 1);
+    states->in_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
     if (dc_error_has_no_error(err))
     {
         return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
@@ -63,11 +63,12 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
             fprintf(stderr, msg);
             free(msg);
 
+            printf("FAILED??\n");
             states->fatal_error = true;
             return ERROR;
         }
     }
-    states->out_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, OUT_REDIRECT_REGEX) + 1);
+    states->out_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
     if (dc_error_has_no_error(err))
     {
         return_value_regex = regcomp(states->out_redirect_regex, OUT_REDIRECT_REGEX, 0);
@@ -77,7 +78,7 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
             return ERROR;
         }
     }
-    states->err_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, ERR_REDIRECT_REGEX) + 1);
+    states->err_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
     if (dc_error_has_no_error(err))
     {
         return_value_regex = regcomp(states->err_redirect_regex, ERR_REDIRECT_REGEX, 0);
@@ -125,22 +126,19 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
 
     if (states->in_redirect_regex != NULL)
     {
-//        regfree(states->in_redirect_regex);
-        free(states->in_redirect_regex);
+        regfree(states->in_redirect_regex);
         states->in_redirect_regex = NULL;
     }
 
     if (states->out_redirect_regex != NULL)
     {
-//        regfree(states->out_redirect_regex);
-        free(states->out_redirect_regex);
+        regfree(states->out_redirect_regex);
         states->out_redirect_regex = NULL;
     }
 
     if (states->err_redirect_regex != NULL)
     {
-//        regfree(states->err_redirect_regex);
-        free(states->err_redirect_regex);
+        regfree(states->err_redirect_regex);
         states->err_redirect_regex = NULL;
     }
 
@@ -175,11 +173,9 @@ static void free_paths(const struct dc_posix_env *env, struct dc_error *err,
 
     while (!paths[i])
     {
-        if (!*(paths[i]))
-        {
-            dc_free(env, *(paths[i]), dc_strlen(env, *(paths[i])));
-            *(paths[i]) = NULL;
-        }
+        dc_free(env, paths[i], dc_strlen(env, paths[i]) + 1);
+        paths[i] = NULL;
+
         i++;
     }
     dc_free(env, *pPath, sizeof(char**));
@@ -292,6 +288,10 @@ int handle_error(const struct dc_posix_env *env, struct dc_error *err,
 {
     struct state* states;
     states = (struct state*)arg;
+
+    if (states->current_line == NULL)
+    {
+    }
 
     if(states->fatal_error)
     {

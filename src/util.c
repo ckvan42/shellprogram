@@ -46,7 +46,7 @@ static void free_loop(const struct dc_posix_env *env, const struct dc_error *err
  * @param err the error object
  * @return PS1 env var or "$" if PS1 not set.
  */
-const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
+char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
 {
     const char* name = "PS1";
     char* value;
@@ -55,18 +55,14 @@ const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
     value = dc_getenv(env, name);
     if (value)
     {
-//        prompt = dc_strdup(env, err, value);
         prompt = value;
     }
     else
     {
-//        prompt = dc_strdup(env, err, "$ ");
         prompt = "$ ";
     }
 
     return prompt;
-    //ATTENTION HOW CAN I FREE THIS????
-    //COUPLING???
 }
 
 /**

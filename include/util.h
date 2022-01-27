@@ -31,7 +31,7 @@
  * @param err the error object
  * @return value of the PS1 environ var or "$ " if PS1 not set.
  */
-const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err);
+char *get_prompt(const struct dc_posix_env *env, struct dc_error *err);
 
 /**
  * Get the PATH environ var.

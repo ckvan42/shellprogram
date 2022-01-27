@@ -85,9 +85,9 @@ static void test_destroy_state(bool initial_fatal)
     assert_that(state.stdin, is_equal_to(stdin));
     assert_that(state.stdout, is_equal_to(stdout));
     assert_that(state.stderr, is_equal_to(stderr));
-//    assert_that(state.in_redirect_regex, is_null);
-//    assert_that(state.out_redirect_regex, is_null);
-//    assert_that(state.err_redirect_regex, is_null);
+    assert_that(state.in_redirect_regex, is_null);
+    assert_that(state.out_redirect_regex, is_null);
+    assert_that(state.err_redirect_regex, is_null);
     assert_that(state.prompt, is_null);
     assert_that(state.path, is_null);
     assert_that(state.max_line_length, is_equal_to(0));
@@ -211,9 +211,9 @@ TestSuite *shell_impl_tests(void)
     TestSuite *suite;
 
     suite = create_test_suite();
-//    add_test_with_context(suite, shell_impl, init_state);
-//    add_test_with_context(suite, shell_impl, destroy_state);
-//    add_test_with_context(suite, shell_impl, reset_state);
+    add_test_with_context(suite, shell_impl, init_state);
+    add_test_with_context(suite, shell_impl, destroy_state);
+    add_test_with_context(suite, shell_impl, reset_state);
 //    add_test_with_context(suite, shell_impl, read_commands);
 //    add_test_with_context(suite, shell_impl, separate_commands);
 //    add_test_with_context(suite, shell_impl, parse_commands);
