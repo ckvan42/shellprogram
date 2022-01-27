@@ -2,14 +2,17 @@
 // Created by Giwoun Bae on 2022-01-18.
 //
 
-#include "../include/shell_impl.h"
-#include <stdio.h>
+
 #include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
 #include <dc_posix/dc_string.h>
-#include <dc_util/path.h>
 #include <stdlib.h>
 #include "../include/util.h"
+#include "../include/input.h"
+#include <dc_posix/dc_posix_env.h>
+#include <dc_util/filesystem.h>
+#include "../include/shell_impl.h"
+#include "../include/state.h"
 
 /**
  * Free all the individual paths.
@@ -213,7 +216,43 @@ int reset_state(const struct dc_posix_env *env, struct dc_error *err,
 int read_commands(const struct dc_posix_env *env, struct dc_error *err,
                   void *arg)
 {
+    struct state* states;
+    char *current_working_dir;
+    char *current_prompt;
+    size_t line_len;
+    char * cur_line;
 
+    states = (struct state*) arg;
+
+    current_working_dir = dc_get_working_dir(env, err);
+    if (dc_error_has_error(err))
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+//    fprintf(states->stdout, "[%s] %s\n", current_working_dir, states->prompt);
+
+    current_prompt = dc_malloc(env, err, 1 + dc_strlen(env, current_working_dir) + 1 + 2 + dc_strlen(env, states->prompt));
+    sprintf(current_prompt, "[%s] %s", current_working_dir, states->prompt);
+    fprintf(states->stdout, "%s", current_prompt);
+
+    //read input from state.stdin in to state.current_line
+    line_len = states->max_line_length;
+    cur_line = read_command_line(env, err, states->stdin, &line_len);
+    if (dc_error_has_error(err))
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+
+    if (line_len == 0)
+    {
+        return RESET_STATE;
+    }
+
+    states->current_line = dc_strdup(env, err, cur_line);
+
+    return SEPARATE_COMMANDS;
 }
 
 /**
