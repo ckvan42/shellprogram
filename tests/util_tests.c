@@ -210,10 +210,10 @@ TestSuite *util_tests(void)
 
     suite = create_test_suite();
     add_test_with_context(suite, util, get_prompt);
-//    add_test_with_context(suite, util, get_path);
-//    add_test_with_context(suite, util, parse_path);
-//    add_test_with_context(suite, util, do_reset_state);
-//    add_test_with_context(suite, util, state_to_string);
+    add_test_with_context(suite, util, get_path);
+    add_test_with_context(suite, util, parse_path);
+    add_test_with_context(suite, util, do_reset_state);
+    add_test_with_context(suite, util, state_to_string);
 
     return suite;
 }

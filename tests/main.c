@@ -10,12 +10,12 @@ int main(int argc, char **argv)
     suite    = create_test_suite();
     reporter = create_text_reporter();
 
-//    add_suite(suite, builtin_tests());
-//    add_suite(suite, command_tests());
-//    add_suite(suite, execute_tests());
-//    add_suite(suite, input_tests());
+    add_suite(suite, builtin_tests());
+    add_suite(suite, command_tests());
+    add_suite(suite, execute_tests());
+    add_suite(suite, input_tests());
     add_suite(suite, shell_impl_tests());
-//    add_suite(suite, util_tests());
+    add_suite(suite, util_tests());
 
     if(argc > 1)
     {

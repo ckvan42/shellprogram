@@ -274,7 +274,21 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err,
 int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
                       void *arg)
 {
+    struct state* states;
 
+    states = (struct state*) arg;
+
+
+    states->command->stdin_file;
+    states->command->stdout_file;
+    states->command->stderr_file;
+    states->command->stdout_overwrite;
+    states->command->stderr_overwrite;
+    states->command->argc;
+    states->command->argv;
+    states->command->line;
+    states->command->command;
+    states->command->exit_code;
 }
 
 /**
