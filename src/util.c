@@ -7,6 +7,7 @@
 #include <string.h>
 #include <dc_posix/dc_string.h>
 #include <dc_posix/dc_stdlib.h>
+#include <dc_posix/dc_wordexp.h>
 #include <wordexp.h>
 #include "../include/state.h"
 #include "../include/util.h"
@@ -106,6 +107,7 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
     size_t maxLen;
     size_t index;
     char *tempFr;
+    wordexp_t exp;
 
     temp = strdup(path_str);
     tempFr = temp;
@@ -115,7 +117,12 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
 
     while((token = strtok_r(temp, ":", &temp)) != NULL)
     {
-        list[index] = dc_strdup(env, err, token);
+        dc_wordexp(env, err, token, &exp, 0);
+        if (dc_error_has_error(err))
+        {
+            dc_exit(env, errno);
+        }
+        list[index] = dc_strdup(env, err, exp.we_wordv[0]);
         index++;
     }
     free(tempFr);
