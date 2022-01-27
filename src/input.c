@@ -6,27 +6,22 @@
 #include <stdio.h>
 #include <dc_posix/dc_string.h>
 #include <dc_util/strings.h>
+#include <dc_posix/dc_stdio.h>
 
 char *read_command_line(const struct dc_posix_env *env, struct dc_error *err,
                         FILE *stream, size_t *line_size)
 {
     char * buffer;
     size_t size;
-    ssize_t nread;
 
     size = *line_size;
     buffer = dc_calloc(env, err, size, sizeof (char));
-    if (dc_error_has_no_error(err))
-    {
-        nread = getline(&buffer, line_size, stream);
-        if (nread == -1)
-        {
-            if (!buffer)
-            {
-                perror("FAILED\n");
-                dc_exit(env, DC_ERROR_USER);
-            }
-        }
+    if (dc_error_has_error(err)) {
+        dc_exit(env, errno);
+    }
+    dc_getline(env, err, &buffer, line_size, stream);
+    if (dc_error_has_error(err)) {
+        dc_exit(env, errno);
     }
     dc_str_trim(env, buffer);
     *line_size = dc_strlen(env, buffer);
