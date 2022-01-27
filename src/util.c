@@ -7,6 +7,7 @@
 #include <string.h>
 #include <dc_posix/dc_string.h>
 #include <dc_posix/dc_stdlib.h>
+#include <wordexp.h>
 #include "../include/state.h"
 #include "../include/util.h"
 #include "../include/command.h"
@@ -54,11 +55,13 @@ const char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
     value = dc_getenv(env, name);
     if (value)
     {
-        prompt = dc_strdup(env, err, value);
+//        prompt = dc_strdup(env, err, value);
+        prompt = value;
     }
     else
     {
-        prompt = dc_strdup(env, err, "$ ");
+//        prompt = dc_strdup(env, err, "$ ");
+        prompt = "$ ";
     }
 
     return prompt;
@@ -126,6 +129,8 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
 }
 
 
+
+
 /**
  * Reset the state for the next read, freeing any dynamically allocated memory.
  *
@@ -134,7 +139,6 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
  */
 void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct state *state)
 {
-
     state->current_line_length = 0;
     free_char(env, err, &(state->current_line));
     if (state->command)
@@ -147,17 +151,22 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     dc_error_reset(err);
 }
 
-static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **command)
+static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **pCommand)
 {
-    free_char(env, err, &(*command)->line);
-    free_char(env, err, &(*command)->command);
-    free_loop(env, err, &(*command)->argc, &(*command)->argv);
-    free_char(env, err, &(*command)->stdin_file);
-    free_char(env, err, &(*command)->stdout_file);
-    (*command)->stdout_overwrite = false;
-    free_char(env, err, &(*command)->stderr_file);
-    (*command)->stderr_overwrite = false;
-    (*command)->exit_code = 0;
+
+    struct command *command;
+
+    command = (struct command *) *pCommand;
+
+    free_char(env, err, &command->line);
+    free_char(env, err, &command->command);
+    free_loop(env, err, &command->argc, &command->argv);
+    free_char(env, err, &command->stdin_file);
+    free_char(env, err, &command->stdout_file);
+    command->stdout_overwrite = false;
+    free_char(env, err, &command->stderr_file);
+    command->stderr_overwrite = false;
+    command->exit_code = 0;
 }
 
 static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv)

@@ -6,10 +6,21 @@
 #include <stdio.h>
 #include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <dc_posix/dc_string.h>
-#include <util.h>
 #include <dc_util/path.h>
+#include <stdlib.h>
+#include "../include/util.h"
+
+/**
+ * Free all the individual paths.
+ *
+ * @param env
+ * @param err
+ * @param arg
+ */
+static void free_paths(const struct dc_posix_env *env, struct dc_error *err,
+                       char ***pPath);
+
 #define IN_REDIRECT_REGEX "[ \t\f\v]<.*"
 #define OUT_REDIRECT_REGEX "[ \t\f\v][1^2]?>[>]?.*"
 #define ERR_REDIRECT_REGEX "[ \t\f\v]2>[>]?.*"
@@ -32,52 +43,69 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 {
     struct state *states;
     int return_value_regex;
-
-    states = dc_malloc(env, err, sizeof (struct state));
-
-    if (states == NULL)
-    {
-        return ERROR;
-    }
-
-    states->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
-
-    states->in_redirect_regex = dc_malloc(env, err, dc_strlen(env, IN_REDIRECT_REGEX) + 1);
-    states->out_redirect_regex = dc_malloc(env, err, dc_strlen(env, OUT_REDIRECT_REGEX) + 1);
-    states->err_redirect_regex = dc_malloc(env, err, dc_strlen(env, ERR_REDIRECT_REGEX) + 1);
-    return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
-    if (return_value_regex != 0)
-    {
-        printf("error");
-        states->fatal_error = true;
-        return ERROR;
-    }
-    return_value_regex = regcomp(states->out_redirect_regex, OUT_REDIRECT_REGEX, 0);
-    if (return_value_regex != 0)
-    {
-        states->fatal_error = true;
-        return ERROR;
-    }
-    return_value_regex = regcomp(states->err_redirect_regex, ERR_REDIRECT_REGEX, 0);
-    if (return_value_regex != 0)
-    {
-        states->fatal_error = true;
-        return ERROR;
-    }
-
-    char * path_variable;
-    char **exp_path;
-    /* get the PATH environment */
     //get the PATH environment variables
-    //split PATH into an array, seperated by :
-//    path_variable = get_path(env, err);
-//    exp_path = parse_path(env, err, path_variable);
+    char *path;
+    char **path_array;
 
+    states = (struct state*) arg;
 
+    states->in_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, IN_REDIRECT_REGEX) + 1);
+    if (dc_error_has_no_error(err))
+    {
+        return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
+        if (return_value_regex != 0)
+        {
+            size_t size;
+            char *msg;
 
+            size = regerror(return_value_regex, states->in_redirect_regex, NULL, 0);
+            msg = dc_malloc(env, err, size + 1);
+            fprintf(stderr, msg);
+            free(msg);
 
+            states->fatal_error = true;
+            return ERROR;
+        }
+    }
+    states->out_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, OUT_REDIRECT_REGEX) + 1);
+    if (dc_error_has_no_error(err))
+    {
+        return_value_regex = regcomp(states->out_redirect_regex, OUT_REDIRECT_REGEX, 0);
+        if (return_value_regex != 0)
+        {
+            states->fatal_error = true;
+            return ERROR;
+        }
+    }
+    states->err_redirect_regex = (regex_t *)dc_malloc(env, err, dc_strlen(env, ERR_REDIRECT_REGEX) + 1);
+    if (dc_error_has_no_error(err))
+    {
+        return_value_regex = regcomp(states->err_redirect_regex, ERR_REDIRECT_REGEX, 0);
+        if (return_value_regex != 0)
+        {
+            states->fatal_error = true;
+            return ERROR;
+        }
+    }
 
-    return 0;
+    path = get_path(env, err);
+    path_array = parse_path(env, err, path);
+    states->path = path_array; //already dynamically allocated.
+
+    //get the PS1 environment variables
+    states->prompt = dc_strdup(env, err, get_prompt(env, err));
+
+    //all other variables to zero
+    states->stdin = stdin;
+    states->stdout = stdout;
+    states->stderr = stderr;
+    states->fatal_error = false;
+    states->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
+    states->current_line = NULL;
+    states->current_line_length = 0;
+    states->command = NULL;
+
+    return READ_COMMANDS;
 }
 
 /**
@@ -91,7 +119,71 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
                   void *arg)
 {
+    struct state *states;
 
+    states = (struct state*) arg;
+
+    if (states->in_redirect_regex != NULL)
+    {
+//        regfree(states->in_redirect_regex);
+        free(states->in_redirect_regex);
+        states->in_redirect_regex = NULL;
+    }
+
+    if (states->out_redirect_regex != NULL)
+    {
+//        regfree(states->out_redirect_regex);
+        free(states->out_redirect_regex);
+        states->out_redirect_regex = NULL;
+    }
+
+    if (states->err_redirect_regex != NULL)
+    {
+//        regfree(states->err_redirect_regex);
+        free(states->err_redirect_regex);
+        states->err_redirect_regex = NULL;
+    }
+
+    dc_free(env, states->prompt, dc_strlen(env, states->prompt) + 1);
+    states->prompt = NULL;
+
+    free_paths(env, err, &states->path);
+
+    do_reset_state(env, err, states);
+    states->max_line_length = 0;
+
+    return DC_FSM_EXIT;
+}
+
+/**
+ * Free each char * in the array of paths
+ *
+ * @param env the posix environment
+ * @param err the error object
+ * @param paths pointer to the first element of the array of path
+ */
+static void free_paths(const struct dc_posix_env *env, struct dc_error *err,
+                        char ***pPath)
+{
+    char ** paths;
+    //it was strduped and last one has null byte
+    //each element has char* strduped.
+    size_t i;
+
+    i = 0;
+    paths = (char **)*pPath;
+
+    while (!paths[i])
+    {
+        if (!*(paths[i]))
+        {
+            dc_free(env, *(paths[i]), dc_strlen(env, *(paths[i])));
+            *(paths[i]) = NULL;
+        }
+        i++;
+    }
+    dc_free(env, *pPath, sizeof(char**));
+    *pPath = NULL;
 }
 
 /**
@@ -106,6 +198,11 @@ int reset_state(const struct dc_posix_env *env, struct dc_error *err,
                 void *arg)
 {
 
+    struct state *states;
+
+    states = (struct state*) arg;
+    do_reset_state(env, err, states);
+    return READ_COMMANDS;
 }
 
 /**
