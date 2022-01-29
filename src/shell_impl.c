@@ -66,7 +66,6 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
             fprintf(stderr, msg);
             free(msg);
 
-            printf("FAILED??\n");
             states->fatal_error = true;
             return ERROR;
         }
@@ -97,7 +96,7 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
     states->path = path_array; //already dynamically allocated.
 
     //get the PS1 environment variables
-    states->prompt = dc_strdup(env, err, get_prompt(env, err));
+    states->prompt = get_prompt(env, err);
 
     //all other variables to zero
     states->fatal_error = false;
@@ -280,6 +279,13 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
 
     states->command = dc_calloc(env, err, 1, sizeof(struct command));
 
+    if (dc_error_has_error(err))
+    {
+        states->fatal_error = true;
+        return ERROR;
+    }
+
+    states->command->line  = dc_strdup(env, err, states->current_line);
     states->command->stdin_file = NULL;
     states->command->stdout_file = NULL;
     states->command->stderr_file = NULL;
@@ -287,11 +293,10 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
     states->command->stderr_overwrite = false;
     states->command->argc = 0;
     states->command->argv = NULL;
-    states->command->line ;
-//    states->command->command = ;
+    states->command->command = NULL;
     states->command->exit_code = EXIT_SUCCESS;
 
-    return READ_COMMANDS;
+    return PARSE_COMMANDS;
 }
 
 /**
@@ -305,7 +310,14 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
 int parse_commands(const struct dc_posix_env *env, struct dc_error *err,
                    void *arg)
 {
+    struct state* states;
 
+    states = (struct state*) arg;
+
+//    parse_command(env, err, )
+
+
+    return EXECUTE_COMMANDS;
 }
 
 

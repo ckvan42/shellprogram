@@ -31,19 +31,19 @@ struct command;
 */
 struct state
 {
-  FILE *stdin;                  /** stream to read commands from */
-  FILE *stdout;                 /** stream to print the prompt to */
-  FILE *stderr;                 /** stream to print error messages to */
-  regex_t *in_redirect_regex;   /**< stdin regex */
-  regex_t *out_redirect_regex;  /**< stdout regex */
-  regex_t *err_redirect_regex;  /**< stderr regex */
-  char **path;                  /**< PATH environ var broken up */
-  char *prompt;                 /**< Prompt to display before a command is entered */
-  size_t max_line_length;       /**< the largest possible line */
-  char *current_line;           /**< the line the user most recently entered */
-  size_t current_line_length;   /**< the length of the most recently line */
-  struct command *command;      /**< the commands to execute - currently only one */
-  bool fatal_error;             /**< should the error terminate the shell (true = terminate) */
+    FILE *stdin;                  /** stream to read commands from */
+    FILE *stdout;                 /** stream to print the prompt to */
+    FILE *stderr;                 /** stream to print error messages to */
+    regex_t *in_redirect_regex;   /**< stdin regex */
+    regex_t *out_redirect_regex;  /**< stdout regex */
+    regex_t *err_redirect_regex;  /**< stderr regex */
+    char **path;                  /**< PATH environ var broken up */
+    char *prompt;                 /**< Prompt to display before a command is entered */
+    size_t max_line_length;       /**< the largest possible line */
+    char *current_line;           /**< the line the user most recently entered */
+    size_t current_line_length;   /**< the length of the most recently line */
+    struct command *command;      /**< the commands to execute - currently only one */
+    bool fatal_error;             /**< should the error terminate the shell (true = terminate) */
 };
 
 #endif // DC_SHELL_STATE_H

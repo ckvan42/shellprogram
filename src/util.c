@@ -104,23 +104,38 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err)
  * @return The directories that make up the path.
  */
 char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
-                  char *path_str)
+                  const char *path_str)
 {
     char *temp; //the original string gets destroyed. So we need the temp copy.
     char *token; //each token
     char **list; //list
-    size_t maxLen;
     size_t index;
     char *tempFr;
+    char *tempNumFr;
+    char *numFr;
     wordexp_t exp;
 
     temp = strdup(path_str);
     tempFr = temp;
-    maxLen = dc_strlen(env, temp); // maximum number of tokens.
-    list = dc_calloc(env, err, maxLen + 1, sizeof (char *));
+    numFr = strdup(path_str);
+    tempNumFr = numFr;
     index = 0;
 
-    while((token = strtok_r(temp, ":", &temp)) != NULL)
+    if (dc_error_has_error(err))
+    {
+        dc_exit(env, DC_ERROR_ERRNO);
+    }
+
+    while(dc_strtok_r(env, numFr, ":", &numFr))
+    {
+        index++;
+    }
+    dc_free(env, tempNumFr, dc_strlen(env, path_str) + 1);
+
+    list = dc_calloc(env, err, index + 1, sizeof (char *));
+    index = 0;
+
+    while((token = dc_strtok_r(env, temp, ":", &temp)) != NULL)
     {
         dc_wordexp(env, err, token, &exp, 0);
         if (dc_error_has_error(err))
@@ -130,7 +145,7 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
         list[index] = dc_strdup(env, err, exp.we_wordv[0]);
         index++;
     }
-    free(tempFr);
+    dc_free(env, tempFr, dc_strlen(env, path_str) + 1);
     list[index] = NULL;
 
     return list;
@@ -194,6 +209,7 @@ static void free_char(const struct dc_posix_env *env, const struct dc_error *err
         *target = NULL;
     }
 }
+
 /**
  * Display the state values to the given stream.
  *
@@ -201,13 +217,13 @@ static void free_char(const struct dc_posix_env *env, const struct dc_error *err
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state, FILE *stream)
+void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream)
 {
     //for debugging purposes.
     char *str;
 
-    str = state_to_string(env, err, state);
-    dc_free(env, str, dc_strlen(env, str));
+//    str = state_to_string(env, err, state);
+//    dc_free(env, str, dc_strlen(env, str));
 }
 
 /**
@@ -217,7 +233,7 @@ void display_state(const struct dc_posix_env *env, const struct dc_error *err, c
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-char *state_to_string(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state)
+char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state)
 {
     char *str;
     size_t length;

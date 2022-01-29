@@ -18,11 +18,10 @@
  *  along with dc_shell.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <dc_posix/dc_posix_env.h>
-#include <stdio.h>
 #include "shell.h"
 #include "state.h"
-
+#include <dc_posix/dc_posix_env.h>
+#include <stdio.h>
 
 /**
  * Get the prompt to use.
@@ -53,7 +52,7 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err);
  * @return The directories that make up the path.
  */
 char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
-                  char *path_str);
+                  const char *path_str);
 
 /**
  * Reset the state for the next read, freeing any dynamically allocated memory.
@@ -67,11 +66,10 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * Display the state values to the given stream.
  *
  * @param env the posix environment.
- * @param err the error object
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state, FILE *stream);
+void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream);
 
 /**
  * Display the state values to the given stream.
@@ -80,6 +78,6 @@ void display_state(const struct dc_posix_env *env, const struct dc_error *err, c
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-char *state_to_string(const struct dc_posix_env *env, const struct dc_error *err, const struct state *state);
+char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state);
 
 #endif // DC_SHELL_UTIL_H
