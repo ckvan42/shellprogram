@@ -33,6 +33,7 @@ Ensure(util, get_prompt)
     setenv("PS1", "ABC", true);
     prompt = get_prompt(&environ, &error);
     assert_that(prompt, is_equal_to_string("ABC"));
+    free(prompt);
 }
 
 Ensure(util, get_path)
@@ -52,14 +53,15 @@ Ensure(util, get_path)
     char *path;
 
     unsetenv("PATH");
-    path = getenv("PATH");
+    path = get_path(&environ, &error);
     assert_that(path, is_null);
 
     for(int i = 0; paths[i]; i++)
     {
-        setenv("PATH", paths[i], true);
-        path = getenv("PATH");
-        assert_that(path, is_equal_to_string(paths[i]));
+        path = get_path(&environ, &error);
+//        assert_that(path, is_equal_to_string(paths[i]));
+        assert_that(path, is_not_equal_to(paths[i]));
+        free(path);
     }
 }
 
@@ -82,10 +84,14 @@ static void test_parse_path(const char *path_str, char **dirs)
     for(i = 0; dirs[i] && path_dirs[i]; i++)
     {
         assert_that(path_dirs[i], is_equal_to_string(dirs[i]));
+        free(dirs[i]);
+        free(path_dirs[i]);
     }
 
     assert_that(dirs[i], is_null);
     assert_that(path_dirs[i], is_null);
+    free(dirs);
+    free(path_dirs);
 }
 
 Ensure(util, do_reset_state)
@@ -170,26 +176,30 @@ Ensure(util, state_to_string)
     state.command = NULL;
     state.fatal_error = false;
 
-    //now that the set up is done. You have to think about what you want to test.
     state.fatal_error = false;
+    state.current_line = NULL;
+    state.current_line_length = 0;
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = NULL, fatal_error = 0"));
-    //we need the str inside the method, but we cannot free it inside. So we took it out and free it here.
     free(str);
 
     state.fatal_error = true;
+    state.current_line = NULL;
+    state.current_line_length = 0;
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = NULL, fatal_error = 1"));
     free(str);
 
     state.current_line = strdup("");
     state.fatal_error = false;
+    state.current_line_length = 0;
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = \"\", fatal_error = 0"));
     free(str);
     free(state.current_line);
 
     state.current_line = strdup("hello");
+    state.current_line_length = strlen(state.current_line);
     state.fatal_error = false;
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = \"hello\", fatal_error = 0"));
@@ -197,6 +207,7 @@ Ensure(util, state_to_string)
     free(state.current_line);
 
     state.current_line = strdup("world");
+    state.current_line_length = strlen(state.current_line);
     state.fatal_error = true;
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = \"world\", fatal_error = 1"));

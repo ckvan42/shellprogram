@@ -53,14 +53,15 @@ char *get_prompt(const struct dc_posix_env *env, struct dc_error *err)
     char* value;
     char* prompt;
 
+
     value = dc_getenv(env, name);
     if (value)
     {
-        prompt = value;
+        prompt = dc_strdup(env, err, value);
     }
     else
     {
-        prompt = "$ ";
+        prompt = dc_strdup(env, err, "$ ");
     }
 
     return prompt;
@@ -77,15 +78,19 @@ char *get_path(const struct dc_posix_env *env, struct dc_error *err)
 {
     const char* name = "PATH";
     char* value;
+    char* path;
     //this might be in the dc_utils
     //search for it in there.
     value = dc_getenv(env, name);
-
-    //ATTENTION:
-    //should I handle NULL here?
-    //No, the test case also checks for NULL.
-
-    return value;
+    if (value == NULL)
+    {
+        path = NULL;
+    }
+    else
+    {
+        path = dc_strdup(env, err, value);
+    }
+    return path;
 }
 
 /**
