@@ -49,46 +49,37 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
     //get the PATH environment variables
     char *path;
     char **path_array;
+    regex_t regIn;
+    regex_t regOut;
+    regex_t regErr;
 
     states = (struct state*) arg;
 
-    states->in_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
-    if (dc_error_has_no_error(err))
+    return_value_regex = regcomp(&regIn, OUT_REDIRECT_REGEX, REG_EXTENDED);
+    states->in_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regIn));
+    dc_memcpy(env, states->in_redirect_regex, &regIn, sizeof(regIn));
+    if (return_value_regex != 0)
     {
-        return_value_regex = regcomp(states->in_redirect_regex, IN_REDIRECT_REGEX, 0);
-        if (return_value_regex != 0)
-        {
-            size_t size;
-            char *msg;
-
-            size = regerror(return_value_regex, states->in_redirect_regex, NULL, 0);
-            msg = dc_malloc(env, err, size + 1);
-            fprintf(stderr, msg);
-            free(msg);
-
-            states->fatal_error = true;
-            return ERROR;
-        }
+        states->fatal_error = true;
+        return ERROR;
     }
-    states->out_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
-    if (dc_error_has_no_error(err))
+
+    return_value_regex = regcomp(&regOut, OUT_REDIRECT_REGEX, REG_EXTENDED);
+    states->out_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regOut));
+    dc_memcpy(env, states->out_redirect_regex, &regOut, sizeof(regOut));
+    if (return_value_regex != 0)
     {
-        return_value_regex = regcomp(states->out_redirect_regex, OUT_REDIRECT_REGEX, 0);
-        if (return_value_regex != 0)
-        {
-            states->fatal_error = true;
-            return ERROR;
-        }
+        states->fatal_error = true;
+        return ERROR;
     }
-    states->err_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regex_t));
-    if (dc_error_has_no_error(err))
+
+    return_value_regex = regcomp(&regErr, ERR_REDIRECT_REGEX, REG_EXTENDED);
+    states->err_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regErr));
+    dc_memcpy(env, states->err_redirect_regex, &regErr, sizeof(regErr));
+    if (return_value_regex != 0)
     {
-        return_value_regex = regcomp(states->err_redirect_regex, ERR_REDIRECT_REGEX, 0);
-        if (return_value_regex != 0)
-        {
-            states->fatal_error = true;
-            return ERROR;
-        }
+        states->fatal_error = true;
+        return ERROR;
     }
 
     path = get_path(env, err);
@@ -126,18 +117,21 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
     if (states->in_redirect_regex != NULL)
     {
         regfree(states->in_redirect_regex);
+        dc_free(env, states->in_redirect_regex, sizeof(regex_t));
         states->in_redirect_regex = NULL;
     }
 
     if (states->out_redirect_regex != NULL)
     {
         regfree(states->out_redirect_regex);
+        dc_free(env, states->out_redirect_regex, sizeof(regex_t));
         states->out_redirect_regex = NULL;
     }
 
     if (states->err_redirect_regex != NULL)
     {
         regfree(states->err_redirect_regex);
+        dc_free(env, states->err_redirect_regex, sizeof(regex_t));
         states->err_redirect_regex = NULL;
     }
 
