@@ -22,10 +22,10 @@ AfterEach(input)
 
 Ensure(input, read_command_line)
 {
-    test_read_command_line( "hello\n", "hello", NULL);
+    test_read_command_line("hello\n", "hello", NULL);
     test_read_command_line(" evil \n", "evil", NULL);
-    test_read_command_line(" \t\f\vhello world  \t\f\v\n", "hello world", NULL);
-    test_read_command_line("evil\nworld\n", "evil", "world", NULL);
+    test_read_command_line(" \t\f\vabc def  \t\f\v\n", "abc def", NULL);
+    test_read_command_line("four\nthree\n", "four", "three", NULL);
     test_read_command_line("./a.out hello < in.txt > out.txt 2>err.txt\n", "./a.out hello < in.txt > out.txt 2>err.txt", NULL);
 }
 
@@ -35,9 +35,9 @@ static void test_read_command_line(const char *data, ...)
     va_list strings;
     size_t buf_size;
     char *str;
-    const char *expected_line;
+    char *expected_line;
 
-    buf_size = strlen(data + 1);
+    buf_size = strlen(data) + 1;
     str = strdup(data);
     strstream = fmemopen(str, buf_size, "r");
 
@@ -50,7 +50,7 @@ static void test_read_command_line(const char *data, ...)
 
         line_size = buf_size;
         line = read_command_line(&environ, &error, strstream, &line_size);
-        expected_line = va_arg(strings, const char *);
+        expected_line = va_arg(strings, char *);
 
         if(expected_line == NULL)
         {
@@ -62,6 +62,8 @@ static void test_read_command_line(const char *data, ...)
             assert_that(line, is_equal_to_string(expected_line));
             assert_that(line_size, is_equal_to(strlen(line)));
         }
+
+        free(line);
     }
     while(expected_line);
 

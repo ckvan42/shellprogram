@@ -278,17 +278,20 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
 
     states = (struct state*) arg;
 
+    states->command = dc_calloc(env, err, 1, sizeof(struct command));
 
-    states->command->stdin_file;
-    states->command->stdout_file;
-    states->command->stderr_file;
-    states->command->stdout_overwrite;
-    states->command->stderr_overwrite;
-    states->command->argc;
-    states->command->argv;
-    states->command->line;
-    states->command->command;
-    states->command->exit_code;
+    states->command->stdin_file = NULL;
+    states->command->stdout_file = NULL;
+    states->command->stderr_file = NULL;
+    states->command->stdout_overwrite = false;
+    states->command->stderr_overwrite = false;
+    states->command->argc = 0;
+    states->command->argv = NULL;
+    states->command->line ;
+//    states->command->command = ;
+    states->command->exit_code = EXIT_SUCCESS;
+
+    return READ_COMMANDS;
 }
 
 /**

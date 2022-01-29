@@ -58,8 +58,9 @@ Ensure(util, get_path)
 
     for(int i = 0; paths[i]; i++)
     {
+        setenv("PATH", paths[i], true);
         path = get_path(&environ, &error);
-//        assert_that(path, is_equal_to_string(paths[i]));
+        assert_that(path, is_equal_to_string(paths[i]));
         assert_that(path, is_not_equal_to(paths[i]));
         free(path);
     }
