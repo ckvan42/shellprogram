@@ -55,7 +55,7 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 
     states = (struct state*) arg;
 
-    return_value_regex = regcomp(&regIn, OUT_REDIRECT_REGEX, REG_EXTENDED);
+    return_value_regex = regcomp(&regIn, IN_REDIRECT_REGEX, REG_EXTENDED);
     states->in_redirect_regex = (regex_t *)dc_calloc(env, err, 1, sizeof(regIn));
     dc_memcpy(env, states->in_redirect_regex, &regIn, sizeof(regIn));
     if (return_value_regex != 0)
