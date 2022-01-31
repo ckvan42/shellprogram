@@ -1,5 +1,5 @@
 #include "tests.h"
-#include "execute.h"
+#include "../include/execute.h"
 #include <dc_util/strings.h>
 #include <sys/stat.h>
 #include <unistd.h>

@@ -4,9 +4,13 @@
 
 #include "../include/execute.h"
 #include <stdio.h>
+#include <dc_posix/dc_unistd.h>
 
 void execute(const struct dc_posix_env *env, struct dc_error *err,
              struct command *command, char **path)
 {
-    printf("execute.h: execute() \n");
+    pid_t pid;
+
+    pid = dc_fork(env, err);
+
 }

@@ -11,6 +11,7 @@
 #include "../include/input.h"
 #include <dc_posix/dc_posix_env.h>
 #include <dc_util/filesystem.h>
+#include <builtins.h>
 #include "../include/shell_impl.h"
 #include "../include/state.h"
 
@@ -329,8 +330,42 @@ int parse_commands(const struct dc_posix_env *env, struct dc_error *err,
 int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
                      void *arg)
 {
+    struct state *states;
+    const char * cd_command;
+    const char * exit_command;
 
+    states = (struct state *)arg;
 
+    cd_command = "cd";
+    exit_command = "exit";
+
+    if (dc_strcmp(env, states->command->command, cd_command) == 0)
+    {
+        fflush(states->stdout);
+        builtin_cd(env, err, states->command, states->stdout);
+        //**ATTENTION ERROR HANDLING??
+    }
+    else if (dc_strcmp(env, states->command->command, exit_command) == 0)
+    {
+        return EXIT;
+    }
+    else
+    {
+        execute(env, err, states->command, states->path);
+        if (dc_error_has_error(err))
+        {
+            return ERROR;
+        }
+    }
+
+    fflush(states->stdout);
+    fprintf(states->stdout, "%d\n", states->command->exit_code);
+
+    if (states->fatal_error)
+    {
+        return ERROR;
+    }
+    return RESET_STATE;
 }
 
 

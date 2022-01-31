@@ -464,9 +464,9 @@ TestSuite *shell_impl_tests(void)
     add_test_with_context(suite, shell_impl, read_commands);
     add_test_with_context(suite, shell_impl, separate_commands);
     add_test_with_context(suite, shell_impl, parse_commands);
-//    add_test_with_context(suite, shell_impl, execute_commands);
+    add_test_with_context(suite, shell_impl, execute_commands);
     add_test_with_context(suite, shell_impl, do_exit);
-//    add_test_with_context(suite, shell_impl, handle_error);
+    add_test_with_context(suite, shell_impl, handle_error);
 
     return suite;
 }
