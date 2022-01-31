@@ -1,7 +1,6 @@
 #include <dc_util/filesystem.h>
 #include "tests.h"
 #include "util.h"
-#include "input.h"
 
 static void test_run_shell(const char *in, const char *expected_out, const char *expected_err);
 

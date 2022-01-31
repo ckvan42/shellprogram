@@ -1,6 +1,6 @@
 #include "tests.h"
-#include "util.h"
-#include "builtins.h"
+#include "../include/util.h"
+#include "../include/builtins.h"
 #include <dc_util/filesystem.h>
 #include <dc_util/path.h>
 #include <dc_util/strings.h>
