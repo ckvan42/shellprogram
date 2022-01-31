@@ -1,6 +1,7 @@
 #include "tests.h"
-#include "../include/command.h"
-#include "../include/util.h"
+#include "util.h"
+#include "command.h"
+#include "state.h"
 #include <dc_util/strings.h>
 
 static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err);
@@ -24,11 +25,12 @@ AfterEach(util)
 
 Ensure(util, get_prompt)
 {
-    const char *prompt;
+    char *prompt;
 
     unsetenv("PS1");
     prompt = get_prompt(&environ, &error);
     assert_that(prompt, is_equal_to_string("$ "));
+    free(prompt);
 
     setenv("PS1", "ABC", true);
     prompt = get_prompt(&environ, &error);

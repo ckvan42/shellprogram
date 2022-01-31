@@ -28,16 +28,16 @@
 */
 struct command
 {
-    char *line;               /**< the current command line */
-    char *command;            /**< the program/builtin to run */
-    size_t argc;              /**< the number of arguments to the command */
-    char **argv;              /**< the arguments to the command, arg[0] must be NULL */
-    char *stdin_file;         /**< the file to redirect stdin from */
-    char *stdout_file;        /**< the file to redirect stdout to */
-    bool stdout_overwrite;    /**< append or overwrite the stdout file (true = overwrite) */
-    char *stderr_file;        /**< the file to redirect strderr to */
-    bool stderr_overwrite;    /**< append or overwrite the strerr file (true = overwrite) */
-    int exit_code;            /**< the exit code from the program/builtin */
+  char *line;               /**< the current command line */
+  char *command;            /**< the program/builtin to run */
+  size_t argc;              /**< the number of arguments to the command */
+  char **argv;              /**< the arguments to the command, arg[0] must be NULL */
+  char *stdin_file;         /**< the file to redirect stdin from */
+  char *stdout_file;        /**< the file to redirect stdout to */
+  bool stdout_overwrite;    /**< append or overwrite the stdout file (true = overwrite) */
+  char *stderr_file;        /**< the file to redirect strderr to */
+  bool stderr_overwrite;    /**< append or overwrite the strerr file (true = overwrite) */
+  int exit_code;            /**< the exit code from the program/builtin */
 };
 
 /**
@@ -51,6 +51,11 @@ struct command
 void parse_command(const struct dc_posix_env *env, struct dc_error *err,
                    struct state *state, struct command *command);
 
+/**
+ *
+ * @param env
+ * @param command
+ */
 void destroy_command(const struct dc_posix_env *env, struct command *command);
 
 #endif // DC_SHELL_COMMAND_H

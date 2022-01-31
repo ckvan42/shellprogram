@@ -308,9 +308,11 @@ int parse_commands(const struct dc_posix_env *env, struct dc_error *err,
 
     states = (struct state*) arg;
 
-//    parse_command(env, err, )
-
-
+    parse_command(env, err, states, states->command);
+    if (dc_error_has_error(err))
+    {
+        return ERROR;
+    }
     return EXECUTE_COMMANDS;
 }
 

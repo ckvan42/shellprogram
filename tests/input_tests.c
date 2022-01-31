@@ -1,6 +1,6 @@
 #include "tests.h"
 #include "util.h"
-#include "../include/input.h"
+#include "input.h"
 
 static void test_read_command_line(const char *data, ...);
 

@@ -20,6 +20,7 @@
 
 #include <dc_fsm/fsm.h>
 #include <dc_posix/dc_posix_env.h>
+#include <stdio.h>
 
 /*! \enum state
     \brief The possible FSM states.
@@ -29,24 +30,28 @@
 
 enum shell_states
 {
-    INIT_STATE = DC_FSM_USER_START, /**< the initial state */             //  2
-    READ_COMMANDS,                  /**< accept user input */             //  3
-    SEPARATE_COMMANDS,              /**< separate the commands */         //  4
-    PARSE_COMMANDS,                 /**< parse the commands */            //  5
-    EXECUTE_COMMANDS,               /**< execute the commands */          //  6
-    EXIT,                           /**< exit the shell */                //  7
-    RESET_STATE,                    /**< reset the state */               //  8
-    ERROR,                          /**< handle errors */                 //  9
-    DESTROY_STATE,                  /**< destroy the state */             // 10
+  INIT_STATE = DC_FSM_USER_START, /**< the initial state */             //  2
+  READ_COMMANDS,                  /**< accept user input */             //  3
+  SEPARATE_COMMANDS,              /**< separate the commands */         //  4
+  PARSE_COMMANDS,                 /**< parse the commands */            //  5
+  EXECUTE_COMMANDS,               /**< execute the commands */          //  6
+  EXIT,                           /**< exit the shell */                //  7
+  RESET_STATE,                    /**< reset the state */               //  8
+  ERROR,                          /**< handle errors */                 //  9
+  DESTROY_STATE,                  /**< destroy the state */             // 10
 };
 
 /**
  * Run the shell FSM.
  *
  * @param env the posix environment.
- * @param err the error object
+ * @param error the error object
+ * @param in the keyboard (stdin) file
+ * @param out the keyboard (stdout) file
+ * @param err the keyboard (stderr) file
+ *
  * @return the exit code from the shell.
  */
-int run_shell(const struct dc_posix_env *env, struct dc_error *err);
+int run_shell(const struct dc_posix_env *env, struct dc_error *error, FILE *in, FILE *out, FILE *err);
 
 #endif // DC_SHELL_SHELL_H
