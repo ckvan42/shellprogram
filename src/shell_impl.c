@@ -330,6 +330,7 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
                      void *arg)
 {
 
+
 }
 
 
@@ -343,7 +344,12 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
  */
 int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 {
+    struct state *states;
 
+    states = (struct state *)arg;
+    do_reset_state(env, err, states);
+
+    return DESTROY_STATE;
 }
 
 /**
