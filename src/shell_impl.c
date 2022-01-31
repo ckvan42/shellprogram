@@ -342,7 +342,7 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
     if (dc_strcmp(env, states->command->command, cd_command) == 0)
     {
         fflush(states->stdout);
-        builtin_cd(env, err, states->command, states->stdout);
+        builtin_cd(env, err, states->command, states->stderr);
         //**ATTENTION ERROR HANDLING??
     }
     else if (dc_strcmp(env, states->command->command, exit_command) == 0)
