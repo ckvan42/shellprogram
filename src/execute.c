@@ -13,4 +13,9 @@ void execute(const struct dc_posix_env *env, struct dc_error *err,
 
     pid = dc_fork(env, err);
 
+    if (pid == 0)
+    {
+        //call redirect();
+    }
+
 }

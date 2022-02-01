@@ -32,8 +32,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     find_reg_match(env, err, state, state->err_redirect_regex, &command->stderr_file, &matches, &command_string, &command->stderr_overwrite);
     find_reg_match(env, err, state, state->out_redirect_regex, &command->stdout_file, &matches, &command_string, &command->stdout_overwrite);
     find_reg_match(env, err, state, state->in_redirect_regex, &command->stdin_file, &matches, &command_string, NULL);
-    printf("TESTING: %s\n", command_string);
-
     dc_wordexp(env, err, command_string, &exp, 0);
     if (dc_error_has_error(err))
     {

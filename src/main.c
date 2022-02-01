@@ -146,7 +146,7 @@ static int run(const struct dc_posix_env                              *env,
     int ret_val;
 
     DC_TRACE(env);
-//    ret_val = run_shell(env, err);
+    ret_val = run_shell(env, err, stdin, stdout, stderr);
 
     return ret_val;
 }
