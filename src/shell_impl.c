@@ -399,8 +399,15 @@ int handle_error(const struct dc_posix_env *env, struct dc_error *err,
     struct state* states;
     states = (struct state*)arg;
 
+    char err_buf[1024] = {0};
+
     if (states->current_line == NULL)
     {
+        fprintf(states->stderr, "internal error (%d) %s\n", err->errno_code, err->message);
+    }
+    else
+    {
+        fprintf(states->stderr, "internal error (%d) %s: \"%s\"\n", err->errno_code, err->message, states->current_line);
     }
 
     if(states->fatal_error)
