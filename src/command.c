@@ -7,9 +7,9 @@
 #include <dc_util/strings.h>
 #include <dc_posix/dc_wordexp.h>
 
-static void find_regex(const struct dc_posix_env *env, struct dc_error *err,
-                       struct state **statePt, struct command **commandPt);
 
+static void free_loops(const struct dc_posix_env *env, size_t *argc, char*** argv);
+static void free_char(const struct dc_posix_env *env, char **target);
 static void find_reg_match(const struct dc_posix_env *env, struct dc_error *err, struct state* state, regex_t * reg, char** fileNamePt,
                            regmatch_t *matches, char **command_stringPt, bool *overwritePt);
 
@@ -137,18 +137,9 @@ static void find_reg_match(const struct dc_posix_env *env, struct dc_error *err,
     }
 }
 
-static void find_regex(const struct dc_posix_env *env, struct dc_error *err,
-                       struct state **statePt, struct command **commandPt)
-{
-    struct state* state;
-    struct command* command;
-
-    state = (struct state*)*statePt;
-    command = (struct command*)*commandPt;
-
-}
 
 /**
+ * Destroys command structure values and memory.
  *
  * @param env
  * @param command
@@ -156,4 +147,37 @@ static void find_regex(const struct dc_posix_env *env, struct dc_error *err,
 void destroy_command(const struct dc_posix_env *env, struct command *command)
 {
 
+    free_char(env, &command->line);
+    free_char(env, &command->command);
+    free_loops(env, &command->argc, &command->argv);
+    dc_free(env, command->argv, command->argc * sizeof(char*) + 1);
+    command->argv = NULL;
+    free_char(env, &command->stdin_file);
+    free_char(env, &command->stdout_file);
+    command->stdout_overwrite = false;
+    free_char(env, &command->stderr_file);
+    command->stderr_overwrite = false;
+    command->exit_code = 0;
+}
+
+static void free_loops(const struct dc_posix_env *env, size_t *argc, char*** argv)
+{
+    char **argPt = (char **)*argv;
+
+    for (size_t i = 0; i < *argc; i++)
+    {
+        free_char(env, &argPt[i]);
+    }
+    *argc = 0;
+}
+
+static void free_char(const struct dc_posix_env *env, char **target)
+{
+    char *targetPt = (char *)*target;
+
+    if (targetPt)
+    {
+        dc_free(env, targetPt, dc_strlen(env, targetPt));
+        *target = NULL;
+    }
 }

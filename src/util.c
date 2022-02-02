@@ -166,40 +166,41 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     free_char(env, err, &(state->current_line));
     if (state->command)
     {
-        free_command(env, err, &state->command);
-        dc_free(env, state->command, sizeof(struct command));
+//        free_command(env, err, &state->command);
+//        dc_free(env, state->command, sizeof(struct command));
+        destroy_command(env, state->command);
         state->command = NULL;
     }
     state->fatal_error = false;
     dc_error_reset(err);
 }
 
-static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **pCommand)
-{
-
-    struct command *command;
-
-    command = (struct command *) *pCommand;
-
-    free_char(env, err, &command->line);
-    free_char(env, err, &command->command);
-    free_loop(env, err, &command->argc, &command->argv);
-    free_char(env, err, &command->stdin_file);
-    free_char(env, err, &command->stdout_file);
-    command->stdout_overwrite = false;
-    free_char(env, err, &command->stderr_file);
-    command->stderr_overwrite = false;
-    command->exit_code = 0;
-}
-
-static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv)
-{
-    for (size_t i = 0; i < *argc; i++)
-    {
-        free_char(env, err, argv[i]);
-    }
-    *argc = 0;
-}
+//static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **pCommand)
+//{
+//
+//    struct command *command;
+//
+//    command = (struct command *) *pCommand;
+//
+//    free_char(env, err, &command->line);
+//    free_char(env, err, &command->command);
+//    free_loop(env, err, &command->argc, &command->argv);
+//    free_char(env, err, &command->stdin_file);
+//    free_char(env, err, &command->stdout_file);
+//    command->stdout_overwrite = false;
+//    free_char(env, err, &command->stderr_file);
+//    command->stderr_overwrite = false;
+//    command->exit_code = 0;
+//}
+//
+//static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv)
+//{
+//    for (size_t i = 0; i < *argc; i++)
+//    {
+//        free_char(env, err, argv[i]);
+//    }
+//    *argc = 0;
+//}
 
 static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char **target)
 {

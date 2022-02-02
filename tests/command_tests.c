@@ -294,7 +294,7 @@ TestSuite *command_tests(void)
 
     suite = create_test_suite();
     add_test_with_context(suite, command, parse_command);
-//    add_test_with_context(suite, command, destroy_command);
+    add_test_with_context(suite, command, destroy_command);
 
     return suite;
 }
