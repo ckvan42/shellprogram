@@ -29,36 +29,36 @@ Ensure(execute, execute)
     char **argv;
     char template[16];
 
-    path = dc_strs_to_array(&environ, &error, 3, "/bin", "/usr/bin", NULL);
-
-    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-    test_execute("pwd", 1, argv, path, true, 0, NULL, NULL);
-
-    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-    strcpy(template, "/tmp/fileXXXXXX");
-    test_execute("ls", 1, argv, path, true, 0, template, NULL);
-
-    argv = dc_strs_to_array(&environ, &error, 3, NULL, "asdasdasdfddfgsdfgasderdfdsf", NULL);
-    strcpy(template, "/tmp/fileXXXXXX");
-    test_execute("ls", 2, argv, path, false, ENOENT, NULL, template);
-
-    dc_strs_destroy_array(&environ, 3, path);
-    free(path);
+//    path = dc_strs_to_array(&environ, &error, 3, "/bin", "/usr/bin", NULL);
+//
+//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+//    test_execute("pwd", 1, argv, path, true, 0, NULL, NULL);
+//
+//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+//    strcpy(template, "/tmp/fileXXXXXX");
+//    test_execute("ls", 1, argv, path, true, 0, template, NULL);
+//
+//    argv = dc_strs_to_array(&environ, &error, 3, NULL, "asdasdasdfddfgsdfgasderdfdsf", NULL);
+//    strcpy(template, "/tmp/fileXXXXXX");
+//    test_execute("ls", 2, argv, path, false, ENOENT, NULL, template);
+//
+//    dc_strs_destroy_array(&environ, 3, path);
+//    free(path);
 
     path = dc_strs_to_array(&environ, &error, 1, NULL);
 
     argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
     test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
-
-    dc_strs_destroy_array(&environ, 1, path);
-    free(path);
-    path = dc_strs_to_array(&environ, &error, 2, "/", NULL);
-
-    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
-
-    dc_strs_destroy_array(&environ, 2, path);
-    free(path);
+//
+//    dc_strs_destroy_array(&environ, 1, path);
+//    free(path);
+//    path = dc_strs_to_array(&environ, &error, 2, "/", NULL);
+//
+//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+//    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
+//
+//    dc_strs_destroy_array(&environ, 2, path);
+//    free(path);
 }
 
 static void test_execute(const char *cmd, size_t argc, char **argv, char **path, bool check_exit_code, int expected_exit_code, const char *out_file_name, const char *err_file_name)
@@ -84,6 +84,7 @@ static void test_execute(const char *cmd, size_t argc, char **argv, char **path,
 
     if(check_exit_code)
     {
+        printf("TESTING: %s\n", command.command);
         assert_that(command.exit_code, is_equal_to(expected_exit_code));
     }
 

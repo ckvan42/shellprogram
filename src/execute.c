@@ -12,7 +12,7 @@
 
 static void redirect(const struct dc_posix_env* env, struct dc_error* err, struct command* command);
 
-static int handle_run_error(struct dc_error* err, struct command* command);
+static int handle_run_error(struct dc_error* err, struct command** commandPt);
 
 static void run(const struct dc_posix_env* env, struct dc_error* err, const struct command* command, char** path);
 
@@ -32,20 +32,20 @@ void execute(const struct dc_posix_env *env, struct dc_error *err,
             redirect(env, err, command);
             if (dc_error_has_error(err))
             {
-                dc_exit(env, 126);
+                dc_exit(env, err->err_code);
             }
             //call run() -> this only returns if there is an error calling execv.
             run(env, err, command, path);
             //am I calling the execv in this function too? I'm guessing not.
             if  (dc_error_has_error(err))
             {
-                status = handle_run_error(err, command);
+                status = handle_run_error(err, &command);
             }
             dc_exit(env, status);
         }
         else
         {
-            waitpid(pid, &status, WNOHANG);
+            waitpid(pid, &status, 0);
             command->exit_code = status;
         }
     }
@@ -80,14 +80,19 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
         if (command->stdout_overwrite)
         {
             //truncation
-            outFP = dc_fopen(env, err, command->stdout_file, "w");
+            outFP = dc_fopen(env, err, command->stdout_file, "w+");
         }
         else
         {
-            outFP = dc_fopen(env, err, command->stdout_file, "a");
+            outFP = dc_fopen(env, err, command->stdout_file, "a+");
         }
         //call dup2 for the file and stdout
-        dc_dup2(env, err, fileno(outFP), STDIN_FILENO);
+        if (dc_error_has_error(err))
+        {
+            dc_fclose(env, err, inFP);
+            return;
+        }
+        dc_dup2(env, err, fileno(outFP), STDOUT_FILENO);
     }
 
     if (command->stderr_file != NULL)
@@ -96,14 +101,19 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
         if (command->stderr_overwrite)
         {
             //truncation
-            errFP = dc_fopen(env, err, command->stderr_file, "w");
+            errFP = dc_fopen(env, err, command->stderr_file, "w+");
         }
         else
         {
-            errFP = dc_fopen(env, err, command->stderr_file, "a");
+            errFP = dc_fopen(env, err, command->stderr_file, "a+");
         }
         //call dup2 for the file and stdout
-        dc_dup2(env, err, fileno(errFP), STDIN_FILENO);
+        if (dc_error_has_error(err))
+        {
+            dc_fclose(env, err, errFP);
+            return;
+        }
+        dc_dup2(env, err, fileno(errFP), STDERR_FILENO);
     }
 }
 
@@ -118,25 +128,30 @@ static void run(const struct dc_posix_env* env, struct dc_error* err, const stru
     char *cmd;
     char path_buf[1024] = {0};
 
-    if (dc_strchr(env, command->command, '/') == 0)
+
+    if (dc_strchr(env, command->command, '/') != NULL)
     {
         //set command.argv[0] to command.command
         command->argv[0] = dc_strdup(env, err, command->command);
-        dc_execve(env, err, command->argv[0], command->argv, NULL);
+        dc_execv(env, err, command->command, command->argv);
     }
     else
     {
         //loop over the path array
+        if (!path[0])
+        {
+            DC_ERROR_RAISE_ERRNO(err, ENOENT);
+        }
+
         for (size_t i = 0; path[i]; i++)
         {
             //set cmd to path[i]/command.command
-            dc_strcpy(env, path_buf, path[i]);
-            dc_strcat(env, path_buf, command->command);
+            sprintf(path_buf, "%s/%s", path[i], command->command);
+//            set cpmmand.argv[0] to cmd
             cmd = dc_strdup(env, err, path_buf);
-            //set cmmand.argv[0] to cmd
             command->argv[0] = cmd;
             //call execve for the cmd
-            dc_execve(env, err, cmd, command->argv, NULL);
+            dc_execv(env, err, cmd, command->argv);
             if (dc_error_has_error(err))
             {
                 if (err->errno_code != ENOENT)
@@ -150,8 +165,49 @@ static void run(const struct dc_posix_env* env, struct dc_error* err, const stru
     }
 }
 
-static int handle_run_error(struct dc_error* err, struct command* command)
+static int handle_run_error(struct dc_error* err, struct command** commandPt)
 {
-//    fprintf(stderr, "ERROR: COMMAND %s : %s", command->command, err->message);
-    return err->err_code;
+    struct command* command;
+    int ex_code;
+
+    command = (struct command*)*commandPt;
+    ex_code = command->exit_code;
+
+    switch(err->errno_code) {
+        case E2BIG:
+            ex_code = 1;
+            break;
+        case EACCES:
+            ex_code = 2;
+            break;
+        case EINVAL:
+            ex_code = 3;
+            break;
+        case ELOOP:
+            ex_code = 4;
+            break;
+        case ENAMETOOLONG:
+            ex_code = 5;
+            break;
+        case ENOENT:
+            ex_code = 127;
+            break;
+        case ENOTDIR:
+            ex_code = 6;
+            break;
+        case ENOEXEC:
+            ex_code = 7;
+            break;
+        case ENOMEM:
+            ex_code = 8;
+            break;
+        case ETXTBSY:
+            ex_code = 9;
+            break;
+        default:
+            ex_code = 7;
+            break;
+    }
+    command->exit_code = ex_code;
+    return ex_code;
 }
