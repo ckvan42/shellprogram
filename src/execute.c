@@ -45,12 +45,17 @@ void execute(const struct dc_posix_env *env, struct dc_error *err,
         }
         else
         {
+            // Main process
             waitpid(pid, &status, 0);
-            command->exit_code = status;
+
+            if (WIFEXITED(status))
+            {
+                int es = WEXITSTATUS(status);
+                command->exit_code = es;
+            }
         }
     }
 }
-
 
 static void redirect(const struct dc_posix_env* env, struct dc_error* err, struct command* command)
 {
@@ -64,7 +69,7 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
         inFP = dc_fopen(env, err, command->stdin_file, "r");
         if (dc_error_has_error(err))
         {
-            if (inFP != NULL)
+            if (inFP)
             {
                 dc_fclose(env, err, inFP);
             }
@@ -72,6 +77,14 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
         }
         //call dup2 for the file and stdin
         dc_dup2(env, err, fileno(inFP), STDIN_FILENO);
+        if (dc_error_has_error(err))
+        {
+            if (inFP)
+            {
+                dc_fclose(env, err, inFP);
+            }
+            return;
+        }
     }
 
     if (command->stdout_file != NULL)
@@ -89,10 +102,21 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
         //call dup2 for the file and stdout
         if (dc_error_has_error(err))
         {
-            dc_fclose(env, err, inFP);
+            if (outFP)
+            {
+                dc_fclose(env, err, outFP);
+            }
             return;
         }
         dc_dup2(env, err, fileno(outFP), STDOUT_FILENO);
+        if (dc_error_has_error(err))
+        {
+            if (outFP)
+            {
+                dc_fclose(env, err, outFP);
+            }
+            return;
+        }
     }
 
     if (command->stderr_file != NULL)
@@ -114,6 +138,14 @@ static void redirect(const struct dc_posix_env* env, struct dc_error* err, struc
             return;
         }
         dc_dup2(env, err, fileno(errFP), STDERR_FILENO);
+        if (dc_error_has_error(err))
+        {
+            if(errFP)
+            {
+                dc_fclose(env, err, errFP);
+            }
+            return;
+        }
     }
 }
 
@@ -147,7 +179,6 @@ static void run(const struct dc_posix_env* env, struct dc_error* err, const stru
         {
             //set cmd to path[i]/command.command
             sprintf(path_buf, "%s/%s", path[i], command->command);
-//            set cpmmand.argv[0] to cmd
             cmd = dc_strdup(env, err, path_buf);
             command->argv[0] = cmd;
             //call execve for the cmd
@@ -208,6 +239,8 @@ static int handle_run_error(struct dc_error* err, struct command** commandPt)
             ex_code = 7;
             break;
     }
+
     command->exit_code = ex_code;
+
     return ex_code;
 }

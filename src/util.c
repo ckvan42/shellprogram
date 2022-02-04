@@ -14,31 +14,12 @@
 #include "../include/command.h"
 
 /**
- * Free command struct when resetting.
- *
- * @param env the posix environment.
- * @param err the error object.
- * @param command
- */
-static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **command);
-
-/**
  * Free char pointers if not NULL.
  * @param env the posix environment.
  * @param err the error object.
  * @param target the char pointer to be freed.
  */
 static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char ** target);
-
-/**
- * Loops through the array and frees those pointers.
- *
- * @param env the posix environment.
- * @param err the error object.
- * @param argc size of the array.
- * @param argv the array of pointers.
- */
-static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv);
 
 /**
  * Get the prompt to use.
@@ -175,33 +156,6 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     dc_error_reset(err);
 }
 
-//static void free_command(const struct dc_posix_env *env, const struct dc_error *err, struct command **pCommand)
-//{
-//
-//    struct command *command;
-//
-//    command = (struct command *) *pCommand;
-//
-//    free_char(env, err, &command->line);
-//    free_char(env, err, &command->command);
-//    free_loop(env, err, &command->argc, &command->argv);
-//    free_char(env, err, &command->stdin_file);
-//    free_char(env, err, &command->stdout_file);
-//    command->stdout_overwrite = false;
-//    free_char(env, err, &command->stderr_file);
-//    command->stderr_overwrite = false;
-//    command->exit_code = 0;
-//}
-//
-//static void free_loop(const struct dc_posix_env *env, const struct dc_error *err, size_t *argc, char*** argv)
-//{
-//    for (size_t i = 0; i < *argc; i++)
-//    {
-//        free_char(env, err, argv[i]);
-//    }
-//    *argc = 0;
-//}
-
 static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char **target)
 {
     if (target != NULL)
@@ -221,10 +175,7 @@ static void free_char(const struct dc_posix_env *env, const struct dc_error *err
 void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream)
 {
     //for debugging purposes.
-    char *str;
 
-//    str = state_to_string(env, err, state);
-//    dc_free(env, str, dc_strlen(env, str));
 }
 
 /**
@@ -242,28 +193,13 @@ char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, con
     if (state->current_line != NULL)
     {
         //need to know how many bytes to allocate
-//    length += dc_strlen(env, "in_redirect_regex = ");
-//    length += dc_strlen(env, "out_redirect_regex = ");
-//    length += dc_strlen(env, "err_redirect_regex = ");
-//    length += dc_strlen(env, "path = ");
-//    length += dc_strlen(env, "prompt = ");
-//    length += dc_strlen(env, "max_line_len = ");
+
         length = dc_strlen(env, "current_line = ");
-//    length += dc_strlen(env, ", current_line_length = ");
-//    length += dc_strlen(env, ", command = ");
         length += dc_strlen(env, ", fatal_error = ");
 
         //need to know how many bytes from the actual size.
-//    length += dc_strlen(env, "in_redirect_regex = ");
-//    length += dc_strlen(env, "out_redirect_regex = ");
-//    length += dc_strlen(env, "err_redirect_regex = ");
-//    length += dc_strlen(env, "path = ");
-//    length += dc_strlen(env, "prompt = ");
-//    length += dc_strlen(env, "max_line_len = ");
         length += dc_strlen(env, state->current_line);
         length += 1; // for fatal error
-//    length += dc_strlen(env, "command = ");
-//    length += dc_strlen(env, "fatal_error  = ");
 
         //need to dynamically allocate memory.
         str = dc_malloc(env, err, length + 1); // +1 for null byte.
@@ -272,27 +208,11 @@ char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, con
     else
     {
         //need to know how many bytes to allocate
-//    length += dc_strlen(env, "in_redirect_regex = ");
-//    length += dc_strlen(env, "out_redirect_regex = ");
-//    length += dc_strlen(env, "err_redirect_regex = ");
-//    length += dc_strlen(env, "path = ");
-//    length += dc_strlen(env, "prompt = ");
-//    length += dc_strlen(env, "max_line_len = ");
         length = dc_strlen(env, "current_line = NULL");
-//    length += dc_strlen(env, ", current_line_length = ");
-//    length += dc_strlen(env, ", command = ");
         length += dc_strlen(env, ", fatal_error = ");
 
         //need to know how many bytes from the actual size.
-//    length += dc_strlen(env, "in_redirect_regex = ");
-//    length += dc_strlen(env, "out_redirect_regex = ");
-//    length += dc_strlen(env, "err_redirect_regex = ");
-//    length += dc_strlen(env, "path = ");
-//    length += dc_strlen(env, "prompt = ");
-//    length += dc_strlen(env, "max_line_len = ");
         length += 1; // for fatal error
-//    length += dc_strlen(env, "command = ");
-//    length += dc_strlen(env, "fatal_error  = ");
 
         //need to dynamically allocate memory.
         str = dc_malloc(env, err, length + 1); // +1 for null byte.
