@@ -112,27 +112,30 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
                   void *arg)
 {
     struct state *states;
-
+    size_t regex_size;
     states = (struct state*) arg;
 
     if (states->in_redirect_regex != NULL)
     {
+        regex_size = sizeof(*states->in_redirect_regex);
         regfree(states->in_redirect_regex);
-        dc_free(env, states->in_redirect_regex, sizeof(regex_t));
+        dc_free(env, states->in_redirect_regex, regex_size);
         states->in_redirect_regex = NULL;
     }
 
     if (states->out_redirect_regex != NULL)
     {
+        regex_size = sizeof(*states->out_redirect_regex);
         regfree(states->out_redirect_regex);
-        dc_free(env, states->out_redirect_regex, sizeof(regex_t));
+        dc_free(env, states->out_redirect_regex, regex_size);
         states->out_redirect_regex = NULL;
     }
 
     if (states->err_redirect_regex != NULL)
     {
+        regex_size = sizeof(*states->err_redirect_regex);
         regfree(states->err_redirect_regex);
-        dc_free(env, states->err_redirect_regex, sizeof(regex_t));
+        dc_free(env, states->err_redirect_regex, regex_size);
         states->err_redirect_regex = NULL;
     }
 
