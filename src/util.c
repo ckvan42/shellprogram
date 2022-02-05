@@ -132,9 +132,6 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
     return list;
 }
 
-
-
-
 /**
  * Reset the state for the next read, freeing any dynamically allocated memory.
  *
@@ -147,8 +144,6 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     free_char(env, err, &(state->current_line));
     if (state->command)
     {
-//        free_command(env, err, &state->command);
-//        dc_free(env, state->command, sizeof(struct command));
         destroy_command(env, state->command);
         state->command = NULL;
     }
@@ -172,10 +167,13 @@ static void free_char(const struct dc_posix_env *env, const struct dc_error *err
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream)
+void display_state(const struct dc_posix_env *env, struct dc_error *err, const struct state *state, FILE *stream)
 {
-    //for debugging purposes.
+    char *str;
 
+    str = state_to_string(env, err, state);
+    fprintf(stream, "%s", str);
+    dc_free(env, str, dc_strlen(env, str));
 }
 
 /**

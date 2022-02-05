@@ -10,10 +10,31 @@
 #include <dc_posix/dc_string.h>
 #include <unistd.h>
 
+/**
+ *
+ *
+ * @param env
+ * @param err
+ * @param command
+ */
 static void redirect(const struct dc_posix_env* env, struct dc_error* err, struct command* command);
 
-static int handle_run_error(struct dc_error* err, struct command** commandPt);
+/**
+ *
+ *
+ * @param err
+ * @param commandPt
+ * @return
+ */
+static int handle_run_error(struct dc_error* err);
 
+/**
+ *
+ * @param env
+ * @param err
+ * @param command
+ * @param path
+ */
 static void run(const struct dc_posix_env* env, struct dc_error* err, const struct command* command, char** path);
 
 void execute(const struct dc_posix_env *env, struct dc_error *err,
@@ -39,7 +60,7 @@ void execute(const struct dc_posix_env *env, struct dc_error *err,
             //am I calling the execv in this function too? I'm guessing not.
             if  (dc_error_has_error(err))
             {
-                status = handle_run_error(err, &command);
+                status = handle_run_error(err);
             }
             dc_exit(env, status);
         }
@@ -52,6 +73,11 @@ void execute(const struct dc_posix_env *env, struct dc_error *err,
             {
                 int es = WEXITSTATUS(status);
                 command->exit_code = es;
+            }
+
+            if (command->exit_code == 127)
+            {
+                fprintf(stdout, "command: %s not found.\n", command->command);
             }
         }
     }
@@ -196,13 +222,9 @@ static void run(const struct dc_posix_env* env, struct dc_error* err, const stru
     }
 }
 
-static int handle_run_error(struct dc_error* err, struct command** commandPt)
+static int handle_run_error(struct dc_error* err)
 {
-    struct command* command;
     int ex_code;
-
-    command = (struct command*)*commandPt;
-    ex_code = command->exit_code;
 
     switch(err->errno_code) {
         case E2BIG:
@@ -239,8 +261,6 @@ static int handle_run_error(struct dc_error* err, struct command** commandPt)
             ex_code = 7;
             break;
     }
-
-    command->exit_code = ex_code;
 
     return ex_code;
 }

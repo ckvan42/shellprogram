@@ -66,10 +66,11 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * Display the state values to the given stream.
  *
  * @param env the posix environment.
+ * @param err the error object.
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream);
+void display_state(const struct dc_posix_env *env, struct dc_error *err, const struct state *state, FILE *stream);
 
 /**
  * Display the state values to the given stream.

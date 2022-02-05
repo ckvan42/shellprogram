@@ -211,8 +211,8 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err,
                   void *arg)
 {
     struct state* states;
-    char *current_working_dir;
-    char *current_prompt;
+    char * current_working_dir;
+    char * current_prompt;
     size_t line_len;
     char * cur_line;
 
@@ -345,7 +345,6 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
     if (dc_strcmp(env, states->command->command, cd_command) == 0)
     {
         builtin_cd(env, err, states->command, states->stderr);
-        //**ATTENTION ERROR HANDLING??
     }
     else if (dc_strcmp(env, states->command->command, exit_command) == 0)
     {

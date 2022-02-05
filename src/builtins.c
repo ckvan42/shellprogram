@@ -14,7 +14,14 @@
 #define COMMAND_ERROR_EXIT_CODE 1
 #define COMMAND_SUCCESS_EXIT_CODE 0
 
-
+/**
+ * Outputs the error message to stream.
+ *
+ * @param env the posix environment
+ * @param dir directory name.
+ * @param errNum error number
+ * @param stream output stream.
+ */
 static void stream_error(const struct dc_posix_env *env, char* dir, int errNum, FILE *stream);
 
 /**
@@ -50,7 +57,6 @@ void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
     }
 
     //expand the path to change ~ to the user's home directory
-    //**ATTENTION** i thought I save the expanded path already to the argv[1]?
     dc_wordexp(env, err, temp, &wd_path, 0);
     path = dc_strdup(env, err, wd_path.we_wordv[0]);
     dc_free(env, temp, dc_strlen(env, temp) + 1);
@@ -61,7 +67,6 @@ void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
     {
         //Print error message where message is:
         stream_error(env, path, errno, errstream);
-
         command->exit_code = COMMAND_ERROR_EXIT_CODE;
     }
     else
