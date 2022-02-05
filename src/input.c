@@ -1,4 +1,3 @@
-
 #include "../include/input.h"
 #include <stdio.h>
 #include <dc_posix/dc_string.h>

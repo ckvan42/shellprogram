@@ -11,29 +11,29 @@
 #include <unistd.h>
 
 /**
+ * Setup any I/O redirections for the process.
  *
- *
- * @param env
- * @param err
- * @param command
+ * @param env the posix environment.
+ * @param err the err object
+ * @param command the command to execute.
  */
 static void redirect(const struct dc_posix_env* env, struct dc_error* err, struct command* command);
 
 /**
+ * Display the error message when a process fails
  *
- *
- * @param err
- * @param commandPt
+ * @param err the err object
  * @return
  */
 static int handle_run_error(struct dc_error* err);
 
 /**
+ * Run a process.
  *
- * @param env
- * @param err
- * @param command
- * @param path
+ * @param env the posix environment.
+ * @param err the err object
+ * @param command the command to execute.
+ * @param path the array of PATH directories to search for the program. 
  */
 static void run(const struct dc_posix_env* env, struct dc_error* err, const struct command* command, char** path);
 

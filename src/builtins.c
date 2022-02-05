@@ -1,9 +1,4 @@
-//
-// Created by Giwoun Bae on 2022-01-18.
-//
-
 #include "../include/builtins.h"
-#include <stdlib.h>
 #include <stdio.h>
 #include <dc_posix/dc_string.h>
 #include <dc_posix/dc_wordexp.h>
@@ -13,6 +8,7 @@
 
 #define COMMAND_ERROR_EXIT_CODE 1
 #define COMMAND_SUCCESS_EXIT_CODE 0
+#define ERR_BUF_LEN 1024
 
 /**
  * Outputs the error message to stream.
@@ -74,7 +70,6 @@ void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
         command->exit_code = COMMAND_SUCCESS_EXIT_CODE;
     }
 }
-#define ERR_BUF_LEN 1024
 
 static void stream_error(const struct dc_posix_env *env, char* dir, int errNum, FILE *stream)
 {

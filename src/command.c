@@ -1,21 +1,45 @@
-
 #include "../include/command.h"
-#include <stdlib.h>
 #include <dc_posix/dc_stdlib.h>
 #include <dc_posix/dc_string.h>
 #include <dc_util/strings.h>
 #include <dc_posix/dc_wordexp.h>
 
-
+/**
+ * Helper function to loop through the argv to free its elements.
+ *
+ * @param env the posix environment.
+ * @param argc a pointer to number of elements in the argv.
+ * @param argv a pointer to array of strings.
+ */
 static void free_loops(const struct dc_posix_env *env, size_t *argc, char*** argv);
+
+/**
+ * Helper function to free strings.
+ *
+ * @param env the posix environment.
+ * @param target the string to free.
+ */
 static void free_char(const struct dc_posix_env *env, char **target);
+
+/**
+ * Helper function to find the match for regex.
+ *
+ * @param env the posix environment.
+ * @param err the error object.
+ * @param state the current state, to set the fatal_error and access the command line and regex for redirection.
+ * @param reg the regex to compare.
+ * @param fileNamePt if regex match found, the file name will be saved.
+ * @param matches regmatch variable to access the matched string.
+ * @param command_stringPt the pointer to the string that regex search is applied.
+ * @param overwritePt a pointer to overwrite value. To set true if overwrite regex is found.
+ */
 static void find_reg_match(const struct dc_posix_env *env, struct dc_error *err, struct state* state, regex_t * reg, char** fileNamePt,
                            regmatch_t *matches, char **command_stringPt, bool *overwritePt);
 
 void parse_command(const struct dc_posix_env *env, struct dc_error *err,
                    struct state *state, struct command *command)
 {
-    //if any out-of memeory errors occur
+    //if any out-of memory errors occur
     // states->fatal_error = true;
     // "./a.out < in.txt >> out.txt 2>>err.txt"
 
@@ -87,16 +111,21 @@ static void find_reg_match(const struct dc_posix_env *env, struct dc_error *err,
         {
             if (overwritePt)
             {
-                temp = dc_strdup(env, err, &redirection[2]);
-                if (dc_error_has_error(err))
-                {
-                    state->fatal_error = true;
-                }
+//                *overwritePt = true;                //this part was true in the cgreen test case.
+            }
+            temp = dc_strdup(env, err, &redirection[2]);
+            if (dc_error_has_error(err))
+            {
+                state->fatal_error = true;
             }
         }
         else if ((redirection = dc_strstr(env, str, ">")) != NULL)
         {
-            *overwritePt = true;
+            if (overwritePt)
+            {
+                *overwritePt = true;                //this was true in the testing screen shots.
+            }
+
             //then there is only 2>
             temp = dc_strdup(env, err, &redirection[1]);
             if (dc_error_has_error(err))
@@ -132,13 +161,6 @@ static void find_reg_match(const struct dc_posix_env *env, struct dc_error *err,
     }
 }
 
-
-/**
- * Destroys command structure values and memory.
- *
- * @param env
- * @param command
- */
 void destroy_command(const struct dc_posix_env *env, struct command *command)
 {
 

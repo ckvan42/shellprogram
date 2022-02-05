@@ -1,8 +1,3 @@
-//
-// Created by Giwoun Bae on 2022-01-18.
-//
-
-
 #include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
 #include <dc_posix/dc_string.h>
@@ -13,7 +8,6 @@
 #include <dc_util/filesystem.h>
 #include <builtins.h>
 #include "../include/shell_impl.h"
-#include "../include/state.h"
 
 /**
  * Free all the individual paths.
@@ -22,7 +16,6 @@
  * @param arg the current struct state
  */
 static void free_paths(const struct dc_posix_env *env, char ***pPath);
-
 
 #define IN_REDIRECT_REGEX "[ \t\f\v]<.*"
 #define OUT_REDIRECT_REGEX "[ \t\f\v][1^2]?>[>]?.*"
@@ -173,7 +166,7 @@ static void free_paths(const struct dc_posix_env *env, char ***pPath)
 
         i++;
     }
-    dc_free(env, *pPath, sizeof(char**));
+    dc_free(env, *pPath, sizeof(char*));
     *pPath = NULL;
 }
 

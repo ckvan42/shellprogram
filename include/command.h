@@ -52,9 +52,10 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
                    struct state *state, struct command *command);
 
 /**
+ * Destroys command structure values and memory.
  *
- * @param env
- * @param command
+ * @param env the posix environment.
+ * @param command the command struct object to be destroyed.
  */
 void destroy_command(const struct dc_posix_env *env, struct command *command);
 

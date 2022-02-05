@@ -1,9 +1,4 @@
-//
-// Created by Giwoun Bae on 2022-01-18.
-//
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <dc_posix/dc_string.h>
 #include <dc_posix/dc_stdlib.h>
@@ -151,15 +146,6 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     dc_error_reset(err);
 }
 
-static void free_char(const struct dc_posix_env *env, char **target)
-{
-    if (target != NULL)
-    {
-        dc_free(env, *target, dc_strlen(env, (const char *) target));
-        *target = NULL;
-    }
-}
-
 /**
  * Display the state values to the given stream.
  *
@@ -218,4 +204,14 @@ char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, con
     }
 
      return str;
+}
+
+
+static void free_char(const struct dc_posix_env *env, char **target)
+{
+    if (target != NULL)
+    {
+        dc_free(env, *target, dc_strlen(env, (const char *) target));
+        *target = NULL;
+    }
 }
