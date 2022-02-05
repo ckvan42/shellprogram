@@ -18,12 +18,11 @@
 /**
  * Free all the individual paths.
  *
- * @param env
- * @param err
- * @param arg
+ * @param env the posix environment.
+ * @param arg the current struct state
  */
-static void free_paths(const struct dc_posix_env *env, struct dc_error *err,
-                       char ***pPath);
+static void free_paths(const struct dc_posix_env *env, char ***pPath);
+
 
 #define IN_REDIRECT_REGEX "[ \t\f\v]<.*"
 #define OUT_REDIRECT_REGEX "[ \t\f\v][1^2]?>[>]?.*"
@@ -142,7 +141,7 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
     dc_free(env, states->prompt, dc_strlen(env, states->prompt) + 1);
     states->prompt = NULL;
 
-    free_paths(env, err, &states->path);
+    free_paths(env, &states->path);
 
     do_reset_state(env, err, states);
     states->max_line_length = 0;
@@ -157,8 +156,7 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
  * @param err the error object
  * @param paths pointer to the first element of the array of path
  */
-static void free_paths(const struct dc_posix_env *env, struct dc_error *err,
-                        char ***pPath)
+static void free_paths(const struct dc_posix_env *env, char ***pPath)
 {
     char ** paths;
     //it was strduped and last one has null byte
@@ -400,8 +398,6 @@ int handle_error(const struct dc_posix_env *env, struct dc_error *err,
 {
     struct state* states;
     states = (struct state*)arg;
-
-    char err_buf[1024] = {0};
 
     if (states->current_line == NULL)
     {

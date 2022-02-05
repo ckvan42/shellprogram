@@ -15,11 +15,11 @@
 
 /**
  * Free char pointers if not NULL.
+ *
  * @param env the posix environment.
- * @param err the error object.
  * @param target the char pointer to be freed.
  */
-static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char ** target);
+static void free_char(const struct dc_posix_env *env, char **target);
 
 /**
  * Get the prompt to use.
@@ -141,7 +141,7 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err,
 void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct state *state)
 {
     state->current_line_length = 0;
-    free_char(env, err, &(state->current_line));
+    free_char(env, &(state->current_line));
     if (state->command)
     {
         destroy_command(env, state->command);
@@ -151,7 +151,7 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     dc_error_reset(err);
 }
 
-static void free_char(const struct dc_posix_env *env, const struct dc_error *err, char **target)
+static void free_char(const struct dc_posix_env *env, char **target)
 {
     if (target != NULL)
     {
