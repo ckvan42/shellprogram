@@ -1,8 +1,6 @@
-# shell_assignment
-term4 cst shell writing
+# shell program written in C with built-in functions
 =======
 # template
-A template for assignments and projects.
 ## Setup
 ```
 mkdir cmake-build-debug
